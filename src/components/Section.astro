@@ -1,0 +1,23 @@
+---
+/**
+ * A section of an inner page: the title in a left column, the content next to
+ * it. A thin wrapper around Band.
+ */
+import Band from "./Band.astro";
+
+interface Props {
+  id: string;
+  title: string;
+  tone?: "paper" | "mist" | "night";
+  /** Let code, tables and grids use the full width; the text stays narrow. */
+  wide?: boolean;
+}
+
+const { id, title, tone = "paper", wide = false } = Astro.props;
+---
+
+<Band id={id} tone={tone} title={title} split>
+  <div class:list={["stack", wide ? "stack--wide" : "measure"]}>
+    <slot />
+  </div>
+</Band>

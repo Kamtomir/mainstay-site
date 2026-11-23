@@ -1,0 +1,83 @@
+---
+/**
+ * The site name with one thin line under it (what the author does), four
+ * links and the language switch. Plain links: the switch leads to the same
+ * page in the other language, or to `fallbackPath` when that page has no
+ * translation.
+ */
+import { consultLink, getLangs, getUi, pathFor, typo, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+  path: string;
+  langs: string[];
+  fallbackPath: string;
+  section?: "service" | "plugin" | "case" | "blog";
+}
+
+const { lang, ui, path, langs, fallbackPath, section } = Astro.props;
+
+const links = [
+  { key: "service", label: ui.nav.service, to: "/" },
+  { key: "plugin", label: ui.nav.plugin, to: "/plugin/" },
+  { key: "case", label: ui.nav.case, to: "/case/" },
+  { key: "blog", label: ui.nav.blog, to: "/blog/" },
+] as const;
+
+const current = (key: string, to: string) => (path === to ? "page" : section === key ? "true" : undefined);
+
+const switcher = await Promise.all(
+  (await getLangs()).map(async (code) => {
+    const other = await getUi(code);
+    return {
+      code,
+      short: other.lang.short,
+      name: other.lang.name,
+      htmlLang: other.lang.htmlLang,
+      href: pathFor(code, langs.includes(code) ? path : fallbackPath),
+    };
+  }),
+);
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-name" href={pathFor(lang, "/")}>{ui.site.name}</a>
+    <p class="site-tag">{typo(ui.site.tagline)}</p>
+    <nav class="site-nav" aria-label={ui.nav.label}>
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={pathFor(lang, link.to)} aria-current={current(link.key, link.to)}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    {
+      switcher.length > 1 && (
+        <ul class="lang-switch" aria-label={ui.labels.languageSwitch}>
+          {switcher.map((item) => (
+            <li>
+              {item.code === lang ? (
+                <span aria-current="true" title={item.name}>
+                  {item.short}
+                </span>
+              ) : (
+                <a href={item.href} hreflang={item.htmlLang} lang={item.htmlLang} title={item.name}>
+                  {item.short}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    <a class="header-cta" href={consultLink(ui)} rel="noopener">{ui.cta.consultShort}</a>
+  </div>
+  <div class="progress" aria-hidden="true"></div>
+</header>

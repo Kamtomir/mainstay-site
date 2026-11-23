@@ -1,0 +1,31 @@
+---
+/** Static hosts serve /404.html for a missing address. One page, every language. */
+import Base from "../layouts/Base.astro";
+import { getLangs, getUi, pathFor, site } from "../lib/site";
+
+const ui = await getUi(site.defaultLang);
+const langs = await Promise.all((await getLangs()).map(async (code) => ({ code, ui: await getUi(code) })));
+---
+
+<Base
+  lang={site.defaultLang}
+  path="/404.html"
+  title={ui.notFound.title}
+  description={ui.notFound.text}
+  langs={[site.defaultLang]}
+  noindex
+>
+  <div class="not-found">
+    {
+      langs.map(({ code, ui: local }) => (
+        <div class="not-found__block" lang={local.lang.htmlLang}>
+          <h1>{local.notFound.heading}</h1>
+          <p>{local.notFound.text}</p>
+          <a class="button button--secondary" href={pathFor(code, "/")}>
+            {local.notFound.home}
+          </a>
+        </div>
+      ))
+    }
+  </div>
+</Base>

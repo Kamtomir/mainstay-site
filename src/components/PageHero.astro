@@ -1,0 +1,22 @@
+---
+/**
+ * The opening of an inner page: the title and one paragraph on a mist band.
+ * `title` and `lead` arrive as safe HTML. The slot "before" sits above the
+ * title (a link back), the default slot below the lead (dates, links).
+ */
+interface Props {
+  title: string;
+  lead: string;
+}
+
+const { title, lead } = Astro.props;
+---
+
+<div class="page-hero">
+  <div class="page-hero__inner">
+    <slot name="before" />
+    <h1 class="page-hero__title" set:html={title} />
+    <p class="page-hero__lead" set:html={lead} />
+    <slot />
+  </div>
+</div>

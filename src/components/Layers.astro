@@ -1,0 +1,38 @@
+---
+/**
+ * The six parts of mainstay, one card each. `reference` adds what the part
+ * looked like in the author's own project (the case page).
+ */
+import { inline, site, typo, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+  reference?: boolean;
+}
+
+const { lang, ui, reference = false } = Astro.props;
+const href = (folder: string) => `${site.repoUrl}/${folder.endsWith("/") ? "tree" : "blob"}/main/${folder}`;
+---
+
+<ol class="layers">
+  {
+    ui.layers.map((layer) => (
+      <li>
+        <h3>{typo(layer.name)}</h3>
+        <p set:html={inline(layer.rule, ui, lang)} />
+        {reference && (
+          <p class="layers__ref">
+            <strong>{ui.labels.inReference}:</strong> <Fragment set:html={inline(layer.reference, ui, lang)} />
+          </p>
+        )}
+        <p class="layers__where">
+          {ui.labels.inMainstay}:{" "}
+          <a href={href(layer.folder)} rel="noopener">
+            <code>{layer.folder}</code>
+          </a>
+        </p>
+      </li>
+    ))
+  }
+</ol>

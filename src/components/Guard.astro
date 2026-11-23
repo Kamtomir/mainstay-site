@@ -1,0 +1,107 @@
+---
+/**
+ * What a caught mistake looks like: the list of jobs of the guards-first
+ * workflow (ci/guard-first.yml in mainstay) and the output of a failing check,
+ * verbatim from README.md. Heavy jobs need the guards, so they are skipped.
+ *
+ * The text inside the card stays in English in every language: it is what the
+ * checks print. `live` plays the run once when the page opens.
+ *
+ * `fix` adds a switch under the card: the reader "fixes" the mistake and the
+ * same run turns green, the heavy jobs run. It is a checkbox and CSS, so it
+ * works without JavaScript.
+ */
+import { plugin } from "../data/case";
+import { typo } from "../lib/site";
+
+interface Props {
+  caption: string;
+  /** Show the list of jobs above the output. */
+  jobs?: boolean;
+  /** Play the run when the page opens. */
+  live?: boolean;
+  /** The switch: its two labels and the caption of the green run. */
+  fix?: { run: string; back: string; caption: string };
+}
+
+const { caption, jobs = true, live = false, fix } = Astro.props;
+const out = plugin.redOutput;
+const red = [
+  { state: "pass", mark: "✓", name: "Should CI run?", note: "" },
+  { state: "fail", mark: "✕", name: "Guards", note: "1 violation" },
+  { state: "skip", mark: "–", name: "Tests + build", note: "skipped" },
+  { state: "skip", mark: "–", name: "Integration", note: "skipped" },
+];
+const green = red.map((check) => ({ ...check, state: "pass", mark: "✓", note: "" }));
+const afterChecks = jobs ? red.length : 0;
+---
+
+<figure class="ci">
+  {fix && <input class="ci__toggle visually-hidden" type="checkbox" id="ci-fix" />}
+  <div class:list={["ci__card", live && "ci__card--live"]}>
+    <div class="ci__run ci__run--red">
+      <div class="ci__bar">
+        <span>checks</span>
+        <span class="ci__bar-status" style={`--i:${afterChecks + 1}`}>1 failing</span>
+      </div>
+      {
+        jobs && (
+          <ul class="ci__checks">
+            {red.map((check, i) => (
+              <li class={`ci__check ci__check--${check.state}`} style={`--i:${i}`}>
+                <span class="ci__icon" aria-hidden="true">
+                  {check.mark}
+                </span>
+                <span>{check.name}</span>
+                <span>{check.note}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      <pre class="ci__output" style={`--i:${afterChecks}`}><code><span class="ci__title">{out.title}</span>{"\n\n"}  {out.file}  {out.rule}  {out.message}{"\n\n"}<span class="ci__hint">{out.hint}</span></code></pre>
+    </div>
+    {
+      fix && (
+        <div class="ci__run ci__run--green">
+          <div class="ci__bar">
+            <span>checks</span>
+            <span class="ci__bar-status ci__bar-status--pass" style={`--i:${green.length + 1}`}>
+              {green.length} passing
+            </span>
+          </div>
+          <ul class="ci__checks">
+            {green.map((check, i) => (
+              <li class="ci__check ci__check--pass" style={`--i:${i}`}>
+                <span class="ci__icon" aria-hidden="true">
+                  {check.mark}
+                </span>
+                <span>{check.name}</span>
+                <span />
+              </li>
+            ))}
+          </ul>
+          <p class="ci__passed" style={`--i:${green.length}`}>
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="3" />
+              <path d="M14.5 24.5l6.5 6.5 12.5-13.5" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            All checks have passed
+          </p>
+        </div>
+      )
+    }
+  </div>
+  <figcaption>
+    <span class="ci__caption ci__caption--red">{typo(caption)}</span>
+    {fix && <span class="ci__caption ci__caption--green">{typo(fix.caption)}</span>}
+  </figcaption>
+  {
+    fix && (
+      <label class="ci__fix" for="ci-fix">
+        <span class="ci__fix-run">{fix.run}</span>
+        <span class="ci__fix-back">{fix.back}</span>
+      </label>
+    )
+  }
+</figure>

@@ -1,0 +1,49 @@
+---
+/**
+ * Two lists shown the way a diff shows them: what is added (+) and what is
+ * not (−). Used for "it fits / it does not fit" and for "what the plugin does
+ * / what it does not do". The texts arrive as safe HTML.
+ *
+ * `level` is the heading level of the two titles: 3 under a section title,
+ * 2 when the two lists are sections of their own.
+ */
+import { typo } from "../lib/site";
+
+interface Props {
+  plusTitle: string;
+  plus: readonly string[];
+  minusTitle: string;
+  minus: readonly string[];
+  level?: 2 | 3;
+  /** Anchors for the two lists, when a page links to them. */
+  plusId?: string;
+  minusId?: string;
+}
+
+const { plusTitle, plus, minusTitle, minus, level = 3, plusId, minusId } = Astro.props;
+const Head = level === 2 ? "h2" : "h3";
+const panels = [
+  { kind: "plus", sign: "+", title: plusTitle, lines: plus, id: plusId },
+  { kind: "minus", sign: "−", title: minusTitle, lines: minus, id: minusId },
+];
+---
+
+<div class="diff">
+  {
+    panels.map((panel) => (
+      <div class={`diff__panel diff__panel--${panel.kind}`} id={panel.id}>
+        <Head class="diff__head">{typo(panel.title)}</Head>
+        <ul class="diff__lines">
+          {panel.lines.map((line) => (
+            <li class="diff__line">
+              <span class="diff__sign" aria-hidden="true">
+                {panel.sign}
+              </span>
+              <span class="diff__text" set:html={line} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</div>

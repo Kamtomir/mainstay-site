@@ -1,0 +1,27 @@
+---
+/**
+ * The last band of every page: green, with the two buttons. `text` arrives as
+ * safe HTML.
+ */
+import Band from "./Band.astro";
+import Cta from "./Cta.astro";
+import { typo, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+  title: string;
+  text: string;
+  second?: "plugin" | "github";
+}
+
+const { lang, ui, title, text, second = "plugin" } = Astro.props;
+---
+
+<Band id="closing" tone="pass">
+  <h2 class="closing__title">{typo(title)}</h2>
+  <p class="closing__text" set:html={text} />
+  <div>
+    <Cta lang={lang} ui={ui} second={second} />
+  </div>
+</Band>

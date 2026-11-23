@@ -1,0 +1,30 @@
+{
+  "name": "mainstay-site",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Static site: a quality system for AI-assisted development (service, plugin, case, blog)",
+  "scripts": {
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/check.mjs",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
+    "check": "node scripts/check.mjs",
+    "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "og": "node scripts/og.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@astrojs/rss": "4.0.19",
+    "@fontsource-variable/martian-mono": "5.3.0",
+    "@fontsource-variable/sofia-sans": "5.3.0",
+    "@fontsource-variable/sofia-sans-extra-condensed": "5.3.0",
+    "astro": "7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@types/node": "26.6.6",
+    "typescript": "6.0.3"
+  }
+}

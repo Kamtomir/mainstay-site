@@ -1,0 +1,28 @@
+---
+/**
+ * A command or a piece of output. The text is in the HTML; the copy button is
+ * hidden until the small script at the end of the page finds a clipboard.
+ */
+import { Code } from "astro:components";
+import type { Ui } from "../lib/site";
+
+interface Props {
+  code: string;
+  lang?: "bash" | "ts" | "text" | "yaml";
+  /** Pass `ui` to add a copy button. */
+  ui?: Ui;
+}
+
+const { code, lang = "text", ui } = Astro.props;
+---
+
+<div class:list={["code", ui && "code--copy"]}>
+  <Code code={code} lang={lang} theme="github-dark" />
+  {
+    ui && (
+      <button class="code__copy" type="button" data-copy data-done={ui.labels.copied} hidden>
+        {ui.labels.copy}
+      </button>
+    )
+  }
+</div>

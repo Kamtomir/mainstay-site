@@ -1,0 +1,133 @@
+# The numbers page. It repeats CASE.md of the open mainstay project; the
+# numbers and the commands themselves come from src/data/case.ts. The language
+# is the same as on the whole site: short sentences and plain words.
+
+meta:
+  title: "One engineer, an AI agent and {mergedPrs} changes"
+  description: >-
+    Catch Club: one engineer and Claude Code, eight months, {mergedPrs}
+    accepted changes, {unitTests} tests. Where each number comes from and how
+    to check it again.
+
+hero:
+  title: "One engineer, an AI agent and {mergedPrs} changes in eight months"
+  lead: >-
+    Catch Club is a platform for paid Telegram communities. It has an owner's
+    dashboard, bots, mini apps, payments and AI agents. I built it alone, with
+    the Claude Code agent, from {periodStart} to {periodEnd}. The agent wrote
+    most of the code. Below is what came of it, in numbers.
+
+summary:
+  title: In short
+  text: >-
+    The code of Catch Club is closed. Only its system of checks is open: the
+    mainstay project. It holds no product code, no community names, no member
+    names and no secrets.
+  items:
+    - term: Who
+      value: One engineer, {authorName}, and the AI agent Claude Code.
+    - term: When
+      value: From {periodStart} to {periodEnd}. The numbers were taken on {asOf}.
+    - term: What was built
+      value: >-
+        A site, bots, mini apps, payments and AI agents: {tsLines} lines of
+        TypeScript code, tests not counted.
+    - term: What checked every change
+      value: >-
+        {unitTests} tests, {integrationTests} tests on a real database and
+        {guardSuites} sets of checks for the main rules.
+
+numbers:
+  title: The numbers
+  intro: >-
+    Taken on {asOfFrom} and {asOf}: from check run {ciRun} and from the state
+    of the project at that moment.
+  rows:
+    - value: "{unitTests}"
+      label: tests pass, in {unitTestFiles} files
+      source: the check run; the tests themselves take {unitTestsDuration}
+    - value: "{integrationTests}"
+      label: tests on a real database
+      source: the same run; every database change is applied from scratch first
+    - value: "{ciFull}"
+      label: is how long the full check of one change takes
+      source: the quick “should it run at all” check, {ciShouldRun}; then the tests and the build, {ciTestsAndBuild}; next to them the database tests, {ciIntegration}
+    - value: "{guardSuites}"
+      label: sets of checks for the main rules
+      source: the project
+    - value: "{mergedPrs}"
+      label: changes accepted into the main code
+      source: GitHub
+    - value: "{commits}"
+      label: saves of the code in {days} days
+      source: the project
+    - value: "{migrations}"
+      label: changes to the database structure, across {databases} databases
+      source: the project
+    - value: "{tsLines}"
+      label: lines of code in {sourceFiles} files, tests not counted
+      source: the project
+    - value: "{decisionDocs}"
+      label: "documents with decisions: what we do and why"
+      source: the project
+
+recent:
+  title: The last 30 days
+  intro: To {l30Until}. Counted with an open script from mainstay.
+  rows:
+    - value: "{l30MergedPrs}"
+      label: changes accepted
+    - value: "{l30WithTestsPct}"
+      label: of code changes came with a change to the tests ({l30WithTests} of {l30CodePrs})
+    - value: "{l30RedPct}"
+      label: "of check runs were red: {l30Red} red, {l30Green} green. Another {l30Skipped} runs were skipped as not needed, {l30Cancelled} were cancelled"
+    - value: "{l30Median} / {l30P90} min"
+      label: "is how long a check takes: in half the cases no longer than the first number, in nine out of ten no longer than the second"
+    - value: "{l30FlakyPct}"
+      label: "of cases where a check failed and passed for no reason: {l30FlakyCommits} of {l30Commits}"
+    - value: "{l30MainRed}"
+      label: "times the checks failed on the main version of the code: {l30MainGreen} runs passed, {l30MainCancelled} were cancelled"
+
+reproduce:
+  title: How to check it again
+  intro: >-
+    The code and the log of the checks are closed. But every number can be got
+    with a command, in a copy of the project with read access, at save
+    {commit}. Later changes shift the numbers. On request I run these commands
+    in front of you.
+  testCounts: "How many tests there are and how long they take, from the log of the run:"
+  outputNote: >-
+    Shown without the timestamps. For the database tests, “Duration” is the
+    time of the tests themselves; the {ciIntegration} of the whole job include
+    starting the database and applying the changes.
+  guardSuites: "The sets of rule checks:"
+  rest: "The rest, in the same place:"
+  after: When the numbers are updated, the commands are run again.
+
+layers:
+  title: What the system is made of
+  intro: There are six parts. Each one says what it looked like in my project.
+
+limits:
+  title: What is not here
+  items:
+    - >-
+      Tests that click through the site by themselves. I check the Telegram
+      screens by hand, with a list.
+    - >-
+      Load testing happened once, in August 2026. It is not part of the
+      regular checks.
+    - >-
+      Mistakes that reached people are not counted separately yet. That is
+      where to start in your own project.
+    - >-
+      This is one person's experience. A team of thirty needs the same system
+      set up differently: the checks need owners, a measurement first, goals
+      after it.
+
+closing:
+  title: Where these numbers come from
+  text: >-
+    This page repeats the file
+    [CASE.md](https://github.com/Kamtomir/mainstay/blob/main/CASE.md) of the
+    open project. If the two ever differ, CASE.md is right.

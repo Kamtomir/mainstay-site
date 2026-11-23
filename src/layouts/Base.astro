@@ -1,0 +1,125 @@
+---
+/**
+ * The page skeleton: <head> with everything search engines and AI crawlers
+ * read (title, description, canonical, hreflang, Open Graph, JSON-LD, RSS),
+ * then the header, the content and the footer.
+ *
+ * All text is in the HTML at build time. Nothing here needs JavaScript.
+ */
+import "@fontsource-variable/sofia-sans/wght.css";
+import "@fontsource-variable/sofia-sans-extra-condensed/wght.css";
+import "@fontsource-variable/martian-mono/wdth.css";
+import "../styles/global.css";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { abs, getLangs, getUi, pathFor, site } from "../lib/site";
+import { graph, person, webSite, type Node } from "../lib/jsonld";
+
+interface Props {
+  lang: string;
+  /** The page path without the language prefix: "/", "/plugin/", "/blog/some-post/". */
+  path: string;
+  /** At most 60 characters: checked after the build. */
+  title: string;
+  description: string;
+  /** The languages this page exists in. Default: every language. */
+  langs?: string[];
+  /** Where the language switch leads when the page has no translation. */
+  fallbackPath?: string;
+  section?: "service" | "plugin" | "case" | "blog";
+  ogType?: "website" | "article";
+  published?: Date;
+  updated?: Date;
+  jsonld?: (Node | null)[];
+  noindex?: boolean;
+}
+
+const {
+  lang,
+  path,
+  title,
+  description,
+  fallbackPath = "/",
+  section,
+  ogType = "website",
+  published,
+  updated,
+  jsonld = [],
+  noindex = false,
+} = Astro.props;
+
+const ui = await getUi(lang);
+const allLangs = await getLangs();
+const langs = Astro.props.langs ?? allLangs;
+const canonical = abs(pathFor(lang, path));
+const alternates = await Promise.all(
+  langs.map(async (code) => {
+    const other = await getUi(code);
+    return { code, htmlLang: other.lang.htmlLang, ogLocale: other.lang.ogLocale, href: abs(pathFor(code, path)) };
+  }),
+);
+const xDefault = langs.includes(site.defaultLang) ? abs(pathFor(site.defaultLang, path)) : canonical;
+
+// The link preview picture (scripts/og.mjs draws one per language). A language
+// without its own picture uses the default language's.
+const ownOg = existsSync(join(process.cwd(), "public", `og-${lang}.png`));
+const ogImage = abs(`/og-${ownOg ? lang : site.defaultLang}.png`);
+
+// "<" is written as an escape so a text can never close the <script> tag.
+const ld = JSON.stringify(graph([webSite(ui, lang), person(ui, lang), ...jsonld])).replace(
+  /</g,
+  `${String.fromCharCode(92)}u003c`,
+);
+---
+
+<!doctype html>
+<html lang={ui.lang.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={ui.author.name} />
+    <link rel="canonical" href={canonical} />
+    {
+      noindex ? (
+        <meta name="robots" content="noindex" />
+      ) : (
+        <>
+          {alternates.map((a) => (
+            <link rel="alternate" hreflang={a.htmlLang} href={a.href} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={xDefault} />
+        </>
+      )
+    }
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={ui.site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ui.lang.ogLocale} />
+    {alternates.filter((a) => a.code !== lang).map((a) => <meta property="og:locale:alternate" content={a.ogLocale} />)}
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    {updated && <meta property="article:modified_time" content={updated.toISOString()} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="alternate" type="application/rss+xml" title={`${ui.site.name}: ${ui.blog.heading}`} href={abs(pathFor(lang, "/rss.xml"))} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+    <script type="application/ld+json" set:html={ld} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{ui.labels.skipToContent}</a>
+    <Header lang={lang} ui={ui} path={path} langs={langs} fallbackPath={fallbackPath} section={section} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} ui={ui} />
+  </body>
+</html>

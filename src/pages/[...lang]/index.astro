@@ -1,0 +1,306 @@
+---
+/**
+ * The landing page, one file for every language: the text comes from
+ * src/locales/<language>/home.yaml.
+ *
+ * Every section has its own device, so a reader remembers where things are:
+ * the story in four beats and a run of checks, three tiles on a night band, a
+ * diff, a set of files, a flow in two phases, big numbers with a history of
+ * runs, a receipt, questions that open one at a time, a card about the author.
+ */
+import { getEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Band from "../../components/Band.astro";
+import Cta from "../../components/Cta.astro";
+import DiffLists from "../../components/DiffLists.astro";
+import Guard from "../../components/Guard.astro";
+import KeyFacts from "../../components/KeyFacts.astro";
+import RunDots from "../../components/RunDots.astro";
+import { caseData } from "../../data/case";
+import { abs, fill, getUi, initials, inline, langPaths, pathFor, plain, site, typo } from "../../lib/site";
+import { faqPage, service } from "../../lib/jsonld";
+
+export const getStaticPaths = langPaths;
+
+const { lang } = Astro.props;
+const ui = await getUi(lang);
+const entry = await getEntry("home", lang);
+if (!entry) throw new Error(`src/locales/${lang}/home.yaml is missing`);
+const page = entry.data;
+
+const title = fill(page.meta.title, ui);
+const description = plain(page.meta.description, ui);
+const html = (text: string) => inline(text, ui, lang);
+
+// The price: one fixed line, an optional line for the first clients, or a
+// sentence when site.config.mjs hides the number.
+const { show, intro } = site.price;
+const priceLines = show ? [page.pricing.fixed, ...(intro ? [page.pricing.intro] : [])] : [];
+const priceFact = show
+  ? priceLines.map((line) => `${line.price} — ${line.label}`).join("; ")
+  : page.pricing.hidden;
+
+// "In short" carries the price too, right after the duration.
+const facts = [
+  ...page.facts.items.slice(0, 4),
+  { term: page.pricing.title, value: priceFact },
+  ...page.facts.items.slice(4),
+];
+
+// The receipt lists the four deliverables and the agent's cost.
+const receiptLines = [...page.deliverables.items.map((item) => item.title), page.pricing.agentLine];
+
+// One drawing per deliverable: a report, the checks, the rules, the plan.
+const fileIcons = [
+  "M7 3h7l4 4v14H7z M14 3v4h4 M10 12h5 M10 16h5",
+  "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z M9 12l2 2 4-4",
+  "M4 5h16v14H4z M8 10l3 2-3 2 M13 14h3",
+  "M5 6h14v14H5z M5 10h14 M9 3v4 M15 3v4 M9 14h2 M13 14h2 M9 17h2",
+];
+
+const runs = caseData.last30;
+
+const jsonld = [
+  service(
+    {
+      name: plain(page.facts.items[0]!.value, ui),
+      description: plain(page.facts.summary, ui),
+      url: abs(pathFor(lang, "/")),
+      includes: page.deliverables.items.map((item) => item.title),
+      offers: show
+        ? [
+            { name: plain(page.pricing.fixed.label, ui), price: site.price.amount, from: false },
+            ...(intro ? [{ name: plain(page.pricing.intro.label, ui), price: intro.amount, from: false }] : []),
+          ]
+        : [],
+    },
+    ui,
+  ),
+  faqPage(page.faq.items.map((item) => ({ q: plain(item.q, ui), a: plain(item.a, ui) }))),
+];
+---
+
+<Base lang={lang} path="/" title={title} description={description} section="service" jsonld={jsonld}>
+  <div class="hero">
+    <div class="hero__inner">
+      <h1 class="hero__title">{typo(page.hero.title)}</h1>
+      <div>
+        <ol class="beats">
+          {
+            page.hero.story.map((beat) => (
+              <li class="beat">
+                <span class="beat__when">{beat.when}</span>
+                <p set:html={html(beat.text)} />
+              </li>
+            ))
+          }
+        </ol>
+        <Cta lang={lang} ui={ui} />
+      </div>
+      <div class="hero__aside">
+        <Guard caption={page.hero.artifactCaption} live fix={page.hero.fix} />
+      </div>
+    </div>
+  </div>
+
+  <Band id="approach" tone="night" title={page.approach.title}>
+    <p class="band__lead" set:html={html(page.approach.lead)} />
+    <ul class="places">
+      {
+        page.approach.places.map((place) => (
+          <li class="place">
+            <p class="place__name">{typo(place.name)}</p>
+            <p class="place__label">{page.approach.placeLabel}</p>
+            <p class="place__rule" set:html={html(place.rule)} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="columns columns--3">
+      {page.approach.paragraphs.map((text) => <p set:html={html(text)} />)}
+    </div>
+  </Band>
+
+  <Band id="audience" tone="paper" title={page.audience.title}>
+    <DiffLists
+      plusTitle={page.audience.fitsTitle}
+      plus={page.audience.fits.map(html)}
+      minusTitle={page.audience.notTitle}
+      minus={page.audience.notFits.map(html)}
+    />
+  </Band>
+
+  <Band id="deliverables" tone="mist" title={page.deliverables.title}>
+    <p class="band__lead" set:html={html(page.deliverables.intro)} />
+    <ul class="files">
+      {
+        page.deliverables.items.map((item, i) => (
+          <li class="file">
+            <svg class="file__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d={fileIcons[i]} />
+            </svg>
+            <p class="file__tag">{item.tag}</p>
+            <h3>{typo(item.title)}</h3>
+            <p set:html={html(item.text)} />
+          </li>
+        ))
+      }
+    </ul>
+    <p class="note" set:html={html(page.deliverables.note)} />
+  </Band>
+
+  <Band id="process" tone="paper" title={page.process.title} split>
+    <div class="flow">
+      {
+        page.process.phases.map((phase) => (
+          <div class={`flow__phase flow__phase--${phase.kind}`}>
+            <p class="flow__label">{typo(phase.label)}</p>
+            <ol class="flow__steps">
+              {phase.steps.map((step) => (
+                <li class="flow__step">
+                  <div>
+                    <h3>{typo(step.title)}</h3>
+                    <p set:html={html(step.text)} />
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </div>
+  </Band>
+
+  <Band id="proof" tone="night" title={page.proof.title}>
+    <p class="band__lead" set:html={html(page.proof.intro)} />
+    <ul class="bignums">
+      {
+        page.proof.big.map((item) => (
+          <li class:list={["bignum", item.zero && "bignum--zero"]}>
+            <span class="bignum__value" set:html={html(item.value)} />
+            <span class="bignum__label" set:html={html(item.label)} />
+            <span class="bignum__source" set:html={html(item.source)} />
+          </li>
+        ))
+      }
+    </ul>
+    <ul class="stats">
+      {
+        page.proof.stats.map((item) => (
+          <li class="stat">
+            <span class="stat__value" set:html={html(item.value)} />
+            <span class="stat__label" set:html={html(item.label)} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="stack">
+      <h3 class="subhead" set:html={html(page.proof.runsTitle)} />
+      <div class="runs">
+        <RunDots green={runs.greenRuns} red={runs.redRuns} caption={html(page.proof.runs.all)} />
+        <RunDots green={runs.mainGreenPushes} caption={html(page.proof.runs.main)} />
+      </div>
+    </div>
+    <div class="stack measure">
+      <h3 class="subhead">{typo(page.proof.limitsTitle)}</h3>
+      <ul class="plain-list soft">
+        {page.proof.limits.map((item) => <li set:html={html(item)} />)}
+      </ul>
+      <p set:html={html(page.proof.more)} />
+    </div>
+  </Band>
+
+  <Band id="price" tone="mist" title={page.pricing.title}>
+    <div class="pricing">
+      <div class="receipt">
+        <p class="receipt__title">{typo(page.pricing.receiptTitle)}</p>
+        <ul class="receipt__lines">
+          {
+            receiptLines.map((line) => (
+              <li class="receipt__line">
+                <span>{typo(line)}</span>
+                <span>{page.pricing.included}</span>
+              </li>
+            ))
+          }
+        </ul>
+        {
+          show ? (
+            <>
+              <p class="receipt__total">
+                <span class="receipt__total-label">{page.pricing.total}</span>
+                <span class="receipt__amount" set:html={html(page.pricing.fixed.price)} />
+              </p>
+              <p class="receipt__term" set:html={html(page.pricing.fixed.label)} />
+              {intro && (
+                <p class="receipt__intro">
+                  <strong set:html={html(page.pricing.intro.price)} /> <Fragment set:html={html(page.pricing.intro.label)} />
+                </p>
+              )}
+            </>
+          ) : (
+            <p class="receipt__term" set:html={html(page.pricing.hidden)} />
+          )
+        }
+      </div>
+      <div>
+        <ul class="checks-list">
+          {page.pricing.notes.map((note) => <li set:html={html(note)} />)}
+        </ul>
+        <div class="pricing__cta">
+          <Cta lang={lang} ui={ui} note={false} />
+        </div>
+      </div>
+    </div>
+  </Band>
+
+  <Band id="questions" tone="paper" title={page.faq.title} split>
+    <div class="faq">
+      {
+        page.faq.items.map((item, i) => (
+          <details open={i === 0}>
+            <summary set:html={html(item.q)} />
+            <div class="faq__answer" set:html={html(item.a)} />
+          </details>
+        ))
+      }
+    </div>
+  </Band>
+
+  <section class="band band--mist" id="about" aria-label={page.about.title}>
+    <div class="band__inner">
+      <div class="about">
+        <div class="about__mark" aria-hidden="true">{initials(ui.author.name)}</div>
+        <div>
+          <h2 class="about__name">{ui.author.name}</h2>
+          <p class="about__role">{typo(ui.author.role)}</p>
+          <div class="stack measure">
+            {page.about.paragraphs.map((text) => <p set:html={html(text)} />)}
+          </div>
+          <ul class="chips">
+            <li>
+              <a class="chip" href={site.product.url} rel="noopener">{site.product.name}</a>
+            </li>
+            <li>
+              <a class="chip" href={site.repoUrl} rel="noopener">{ui.cta.github}</a>
+            </li>
+            <li>
+              <a class="chip" href={site.consultUrl} rel="noopener">{ui.footer.links.telegram}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Facts for search engines and AI answer engines: after the human story. */}
+  <KeyFacts lang={lang} ui={ui} title={page.facts.title} summary={page.facts.summary} items={facts} />
+
+  <Band id="closing" tone="pass">
+    <h2 class="closing__title">{typo(page.closing.title)}</h2>
+    <p class="closing__text" set:html={html(page.closing.text)} />
+    <div>
+      <Cta lang={lang} ui={ui} />
+    </div>
+  </Band>
+</Base>

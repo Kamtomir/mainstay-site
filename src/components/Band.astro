@@ -1,0 +1,26 @@
+---
+/**
+ * A full-width section of the page. Bands alternate light and dark, so the
+ * reader always sees where one part ends and the next begins.
+ *
+ *   tone   paper | mist | night | pass
+ *   split  put the title in a left column that stays in view (long sections)
+ */
+import { typo } from "../lib/site";
+
+interface Props {
+  id: string;
+  tone?: "paper" | "mist" | "night" | "pass";
+  title?: string;
+  split?: boolean;
+}
+
+const { id, tone = "paper", title, split = false } = Astro.props;
+---
+
+<section class:list={["band", `band--${tone}`]} id={id} aria-labelledby={title ? `${id}-title` : undefined}>
+  <div class:list={["band__inner", split && "band__inner--split"]}>
+    {title && <h2 class="band__title" id={`${id}-title`}>{typo(title)}</h2>}
+    <slot />
+  </div>
+</section>

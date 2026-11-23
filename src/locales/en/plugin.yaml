@@ -1,0 +1,142 @@
+# The plugin page. Developers read it, but the language is the same: short
+# sentences, plain words. The facts come from README.md of the open mainstay
+# project and from the plugin's instruction; the commands themselves live in
+# src/data/case.ts.
+
+meta:
+  title: "mainstay: a free plugin with checks for Claude Code"
+  description: >-
+    Three commands, and your project has its first checks. They read the code
+    and fail when a main rule is broken. Free, and the code is open.
+
+hero:
+  title: "A free plugin: the first checks in three commands"
+  lead: >-
+    mainstay is my open set of checks for projects where an AI agent writes
+    the code. The checks read the code itself and fail when a rule is broken.
+    The plugin sets them up in your project through Claude Code. Free.
+
+install:
+  title: How to install
+  steps:
+    - text: In Claude Code, connect the catalogue with the plugin.
+      command: marketplaceAdd
+    - text: Install the plugin.
+      command: install
+    - text: Open your project and run the setup.
+      command: setup
+  after: The setup first asks what to install. Only then does it write anything.
+
+does:
+  title: What it does
+  items:
+    - "Asks what you need: the checks, the order they run in, the rules for the agent."
+    - >-
+      Writes the first checks for your project. Every API address checks that
+      the person is signed in. Server keys do not get into the code for the
+      browser. Neither does anything that breaks older iPhones.
+    - >-
+      Counts how many times type checking is switched off in the code
+      (`as any`, `@ts-ignore`). And sets a rule: fewer is fine, more is not.
+    - >-
+      Adds a run of the checks on every change, a check before the code is
+      sent, and a rules file, `CLAUDE.md`.
+    - Runs all of it and shows what it found.
+
+doesNot:
+  title: What it does not do
+  items:
+    - It fixes nothing and saves nothing without your yes.
+    - >-
+      It does not touch the product code. A red check is a finding for you,
+      not a task for the agent.
+    - It does not overwrite your files. It compares, shows the difference and asks.
+    - >-
+      It adds nothing extra. Installing it installs no packages and adds no
+      hooks or MCP servers to your sessions.
+    - It does not send code or open a pull request unless you ask.
+
+output:
+  title: What a found mistake looks like
+  intro: >-
+    The check says three things: which rule is broken, in which file, and what
+    to write instead.
+  after: >-
+    Then there are two honest ways: fix the code, or write down why this file
+    is allowed. Weakening the check itself to get green is not one of them.
+
+needs:
+  title: What it needs
+  items:
+    - A project in git with a `package.json` file.
+    - Node 20 or newer.
+    - Vitest. If it is missing, the setup offers to add it.
+    - Claude Code, to run the plugin.
+
+manual:
+  title: If you do not use Claude Code
+  text: >-
+    The same setup can be done by hand. These are ordinary files: you copy
+    them, and they are yours. The project is not on npm, on purpose. The
+    README has a step-by-step setup that takes {setupMinutes} minutes for a
+    TypeScript project. Below is the first check from it.
+    [Open the setup](https://github.com/Kamtomir/mainstay#15-minute-setup-for-a-typescript-repository).
+
+layers:
+  title: What the whole system is made of
+  intro: >-
+    There are six parts. The plugin sets up three: the rule checks with a
+    counter for old debt, the order they run in, and the rules for the agent.
+    The rest are in the open project, ready to take.
+
+links:
+  title: Where everything is
+  items:
+    - label: The open project on GitHub
+      href: https://github.com/Kamtomir/mainstay
+      note: the checks, the plugin and their tests
+    - label: README.md
+      href: https://github.com/Kamtomir/mainstay/blob/main/README.md
+      note: the six parts of the system and the setup by hand
+    - label: CASE.md
+      href: https://github.com/Kamtomir/mainstay/blob/main/CASE.md
+      note: the numbers of my project and how to check them again
+    - label: LICENSE
+      href: https://github.com/Kamtomir/mainstay/blob/main/LICENSE
+      note: the MIT license
+
+faq:
+  title: Questions about the plugin
+  items:
+    - q: Why checks and not lint rules?
+      a: >-
+        Where a linter is enough, use a linter. A check is an ordinary test of
+        about twenty lines, in the same language as your tests. It sees many
+        files at once, SQL and settings. And the exceptions are written next
+        to the rule, each with a reason.
+    - q: Does the plugin download or send anything?
+      a: >-
+        No. It is one instruction for Claude Code and a copy of the files it
+        installs. The files come from the plugin's own folder; it pulls
+        nothing from the network. It runs inside your Claude Code session,
+        like any task of yours.
+    - q: Which frameworks does it know?
+      a: >-
+        For the check of API addresses: Next.js, SvelteKit, Express, Fastify
+        and Hono. With others it first describes what it found and asks before
+        it writes.
+    - q: A check complains about a file where this is intended. What do I do?
+      a: >-
+        Put the file into the exceptions and state the reason. Without a
+        reason the exception is not accepted. And when it is no longer needed,
+        the check says so itself.
+    - q: Why is the project not on npm?
+      a: >-
+        On purpose. These are files you copy and read in full. No updates from
+        someone else, and no dependence on me.
+
+closing:
+  title: And the rules of your product?
+  text: >-
+    The plugin sets up the general checks. The rules about your money, your
+    access and your data have to be found first. That is the paid work.

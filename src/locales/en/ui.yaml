@@ -1,0 +1,160 @@
+# Names, menu, buttons and small labels. English is the default language.
+# Written in plain words, like every text of the site.
+# {placeholders} are filled from site.config.mjs and src/data/case.ts.
+
+lang:
+  name: English
+  short: EN
+  htmlLang: en
+  ogLocale: en_US
+  dateLocale: en-GB
+  numberLocale: en-US
+
+units:
+  min: min
+  s: s
+  thousand: k
+  hours: hours
+
+site:
+  name: Kamil Dashdamirov
+  tagline: Checks for code written by AI
+  description: >-
+    Kamil Dashdamirov sets up automatic checks in projects. They catch AI
+    agents' mistakes before customers see them.
+
+author:
+  name: Kamil Dashdamirov
+  role: Engineer, author of mainstay
+  bio: >-
+    Engineer. For eight months he built Catch Club alone with the Claude Code
+    agent and put together a system of checks along the way. Then he opened it
+    as mainstay.
+
+nav:
+  label: Site sections
+  service: Service
+  plugin: Free plugin
+  case: Numbers
+  blog: Blog
+
+cta:
+  consult: Free consultation
+  consultShort: Consultation
+  plugin: Install the free plugin
+  consultNote: "20 minutes on a call. Your code stays on your screen. The button opens Telegram, {consultHandle}."
+  consultDraft: Hi Kamil. I would like a free 20-minute consultation about our project.
+  github: mainstay on GitHub
+
+labels:
+  skipToContent: Skip to content
+  languageSwitch: Language
+  published: Published
+  updated: Updated
+  factsChecked: "Facts checked on {checkedAt}."
+  source: Where it comes from
+  number: Number
+  what: What it is
+  readArticle: Read the article
+  allArticles: All articles
+  rss: Subscribe by RSS
+  minutes: min read
+  otherLanguage: This page in another language
+  layer: Part
+  rule: What it does
+  inMainstay: In the open project
+  inReference: In my project
+  copy: Copy
+  copied: Copied
+  sources: Where this comes from
+  back: Back to the blog
+  pages: Pages
+
+footer:
+  note: "© {year} Kamil Dashdamirov"
+  noTracking: This site collects nothing about you. No cookies, no counters, no forms.
+  license: mainstay is an open project under the MIT license.
+  links:
+    github: GitHub
+    telegram: Telegram
+    rss: RSS
+    llms: llms.txt
+
+blog:
+  title: "Blog: how to check code written by AI"
+  description: >-
+    Cases from a project where an AI agent writes the code: what broke, how it
+    was caught and what the numbers showed. Each article names its sources.
+  heading: Blog
+  intro: >-
+    Cases from my project, where an AI agent writes the code. What broke, how
+    we caught it and what came of it.
+
+notFound:
+  title: Page not found
+  heading: This page does not exist
+  text: The address may be mistyped, or the page has moved.
+  home: Go to the main page
+
+# The six parts of mainstay. What each one does follows README.md; what it
+# looked like in the author's project ("reference") follows CASE.md.
+layers:
+  - name: Checks for the main rules
+    rule: >-
+      Tests that read the code itself and fail when a rule is broken. For
+      example: every page checks that the person is signed in.
+    folder: guards/
+    reference: >-
+      {guardSuites} sets of checks. For example: every address of the platform
+      has a limit on requests; when something fails, personal data is shown to
+      no one; code for the browser has nothing that breaks older iPhones;
+      background jobs run on the cheap model.
+  - name: A counter for old debt
+    rule: >-
+      Old problems are counted file by file. Fewer is fine, more is not. A new
+      problem is visible at once.
+    folder: guards/ratchet.ts
+    reference: >-
+      A counter of one-off checks of “which version of the product is this”.
+      Step by step they were replaced by one list of features that is switched
+      without a new release.
+  - name: The order of checks
+    rule: >-
+      The fastest and cheapest first, the slow ones after: whether to run at
+      all, the rule checks, the tests and the build, the tests on a real
+      database. A separate watchdog checks that the new version is really
+      live.
+    folder: ci/
+    reference: >-
+      The same order. The tests run on a real Postgres database, where every
+      database change is applied from scratch. The release watchdog runs every
+      {watchdogHours} hours.
+  - name: Checks for your own AI agent
+    rule: >-
+      If the product has its own AI agent, the check is on the program, not on
+      the agent: what the program does with each of its requests. It refuses,
+      shows a person a card to confirm, or allows. Any action that changes
+      something goes through such a card.
+    folder: evals/
+    reference: >-
+      A list of {refusalCases} cases for the club owner's agent, tests of text
+      cleaning in {sanitizerModules} modules, and the rule “money is
+      dangerous” in {toolModules} modules with tools.
+  - name: Rules for the coding agent
+    rule: >-
+      A file the agent reads before every task: look first, do not write
+      straight into the main version, every change has a test. Plus a check
+      before the code is sent and a list for whoever accepts the change.
+    folder: agent/
+    reference: >-
+      The project's rules file, separate routines for security checks and for
+      audits, rule checks before every send.
+  - name: It broke, so a check appeared
+    rule: >-
+      Every mistake that reached people ends with a check in the same change
+      as the fix. That kind of mistake does not come back. Six numbers show
+      whether things got better.
+    folder: metrics/
+    reference: >-
+      Errors from browsers land in one list by themselves. A mistake in the
+      live product becomes a check the same day.

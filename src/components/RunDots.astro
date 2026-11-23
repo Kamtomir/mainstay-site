@@ -1,0 +1,23 @@
+---
+/**
+ * A history of check runs as dots: one dot is one run. Green passed, red
+ * failed. The order is not chronological: the red ones are grouped at the end,
+ * so the picture shows the share, not the dates.
+ */
+interface Props {
+  green: number;
+  red?: number;
+  /** The caption: it names the same counts in words. */
+  caption: string;
+}
+
+const { green, red = 0, caption } = Astro.props;
+const dots = [...Array.from({ length: green }, () => "pass"), ...Array.from({ length: red }, () => "fail")];
+---
+
+<figure class="run">
+  <div class="run__dots" aria-hidden="true">
+    {dots.map((state) => <span class:list={["run__dot", state === "fail" && "run__dot--fail"]} />)}
+  </div>
+  <figcaption set:html={caption} />
+</figure>

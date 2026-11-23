@@ -1,0 +1,36 @@
+---
+/** A table of measured numbers: the number, what it counts, where it comes from. */
+import { inline, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+  rows: readonly { value: string; label: string; source?: string }[];
+  caption?: string;
+}
+
+const { lang, ui, rows, caption } = Astro.props;
+const withSource = rows.some((row) => row.source);
+---
+
+<table class="numbers">
+  {caption && <caption set:html={inline(caption, ui, lang)} />}
+  <thead>
+    <tr>
+      <th scope="col">{ui.labels.number}</th>
+      <th scope="col">{ui.labels.what}</th>
+      {withSource && <th scope="col">{ui.labels.source}</th>}
+    </tr>
+  </thead>
+  <tbody>
+    {
+      rows.map((row) => (
+        <tr>
+          <td class="numbers__value" set:html={inline(row.value, ui, lang)} />
+          <td set:html={inline(row.label, ui, lang)} />
+          {withSource && <td class="numbers__source" set:html={inline(row.source ?? "", ui, lang)} />}
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

@@ -1,0 +1,32 @@
+---
+/**
+ * The two buttons of the site. The first opens Telegram with a draft message;
+ * the second leads to the plugin page, or to GitHub on the plugin page itself.
+ */
+import { consultLink, pathFor, site, text, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+  second?: "plugin" | "github";
+  note?: boolean;
+}
+
+const { lang, ui, second = "plugin", note = true } = Astro.props;
+---
+
+<div class="cta">
+  <a class="button button--primary" href={consultLink(ui)} rel="noopener">{ui.cta.consult}</a>
+  {
+    second === "plugin" ? (
+      <a class="button button--secondary" href={pathFor(lang, "/plugin/")}>
+        {ui.cta.plugin}
+      </a>
+    ) : (
+      <a class="button button--secondary" href={site.repoUrl} rel="noopener">
+        {ui.cta.github}
+      </a>
+    )
+  }
+</div>
+{note && <p class="cta-note">{text(ui.cta.consultNote, ui)}</p>}

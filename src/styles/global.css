@@ -1,0 +1,2451 @@
+/*
+ * One stylesheet for the whole site.
+ *
+ * The look. A light page with dark bands: white, a cool mist, a deep night
+ * blue. Colour carries meaning, the way it does in a run of checks: green is
+ * "passed", red is "failed", amber is "running". Each section of the landing
+ * page has its own device taken from that world: a run of checks, a diff, a
+ * set of files, a timeline, a history of runs, a receipt. Code always sits on
+ * a night card.
+ *
+ * One theme for everyone: the page alternates light and dark by design, so it
+ * does not follow the system's dark mode.
+ *
+ * Nothing here needs JavaScript. Motion is CSS only and is switched off for
+ * people who ask for reduced motion.
+ */
+
+:root {
+  --paper: #ffffff;
+  --mist: #f2f4f8;
+  --line: #e1e6ee;
+  --ink: #0f1720;
+  --ink-soft: #566173;
+
+  --night: #0b1422;
+  --night-raised: #121d2f;
+  --night-line: #263449;
+  --on-night: #edf1f7;
+  --on-night-soft: #9aa7ba;
+
+  --pass: #12a150;
+  --pass-ink: #0a7a3c;
+  --pass-bright: #3ddc84;
+  --pass-tint: #e6f7ed;
+  --fail: #d92d3a;
+  --fail-ink: #c4232f;
+  --fail-bright: #ff7a85;
+  --fail-tint: #fdecee;
+  --run: #f5a524;
+
+  --font-text: "Sofia Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Sofia Sans Extra Condensed Variable", "Sofia Sans Variable", "Arial Narrow", system-ui, sans-serif;
+  --font-mono: "Martian Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --page: 76rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --measure: 42rem;
+  --band-y: clamp(3.5rem, 8vw, 6.5rem);
+  --radius: 1rem;
+  --header-h: 4rem;
+
+  color-scheme: light;
+}
+
+/* A soft cross-fade between pages, for people who did not ask for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-wrap: balance;
+}
+
+h3 {
+  font-family: var(--font-text);
+  font-size: 1.1875rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+ul,
+ol,
+dl {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--pass);
+  text-decoration-thickness: 0.09em;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 0.16em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--pass);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--pass-bright);
+  color: var(--ink);
+}
+
+strong {
+  font-weight: 750;
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+  font-stretch: 85%;
+}
+
+code {
+  font-size: 0.8em;
+}
+
+:not(pre) > code {
+  padding: 0.12em 0.4em;
+  border-radius: 0.35em;
+  background: var(--mist);
+  overflow-wrap: anywhere;
+}
+
+.band--mist :not(pre) > code {
+  background: var(--paper);
+}
+
+/* A white card on a mist band: the code inside is mist again. */
+.band--mist :is(.diff__panel, .file, .note, .sheet, .layers, .receipt) :not(pre) > code {
+  background: var(--mist);
+}
+
+.band--night :not(pre) > code {
+  background: var(--night-raised);
+  color: var(--on-night);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -5rem;
+  z-index: 30;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0.5rem;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* --- Header: stays at the top and shows how far the reader has come ---------- */
+
+/*
+ * On a phone the header has two tiers. The name, the line under it and the
+ * language switch scroll away with the page; the four links stay at the top.
+ * It is one sticky box pulled up by the exact height of the first tier, so
+ * the rows of that tier have fixed heights.
+ */
+.site-header {
+  --header-fold: calc(0.5rem + 2.25rem + 0.25rem + 1.125rem + 0.25rem);
+  position: sticky;
+  top: calc(-1 * var(--header-fold));
+  z-index: 20;
+  background: rgb(255 255 255 / 0.88);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header__inner {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0.5rem var(--gutter) 0.25rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 2.25rem 1.125rem auto;
+  grid-template-areas:
+    "name lang"
+    "tag  tag"
+    "nav  nav";
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+}
+
+.site-name {
+  grid-area: name;
+  justify-self: start;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* One thin line under the name: what the author does. */
+.site-tag {
+  grid-area: tag;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.125rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.site-nav {
+  grid-area: nav;
+  min-width: 0;
+  font-size: 1rem;
+}
+
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+  list-style: none;
+}
+
+.site-nav a {
+  display: inline-block;
+  padding: 0.3rem 0;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover {
+  color: var(--ink);
+}
+
+.site-nav a[aria-current] {
+  color: var(--ink);
+  border-bottom-color: var(--pass);
+}
+
+.lang-switch {
+  grid-area: lang;
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.lang-switch a,
+.lang-switch span {
+  display: inline-block;
+  min-width: 2.25rem;
+  padding: 0.2rem 0.45rem;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.lang-switch span[aria-current="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.lang-switch a:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* A narrow phone has no room for the button: the page has its own. */
+.header-cta {
+  grid-area: cta;
+  display: none;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.header-cta:hover {
+  background: var(--pass-ink);
+}
+
+@media (min-width: 30rem) {
+  .site-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name lang cta"
+      "tag  tag  tag"
+      "nav  nav  nav";
+  }
+
+  .header-cta {
+    display: inline-block;
+  }
+}
+
+/* A wide screen: one tier, always at the top. */
+@media (min-width: 64rem) {
+  .site-header {
+    top: 0;
+  }
+
+  .site-header__inner {
+    min-height: var(--header-h);
+    padding: 0.5rem var(--gutter);
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "name nav lang cta"
+      "tag  nav lang cta";
+    align-content: center;
+    gap: 0.1rem 1.5rem;
+  }
+
+  .site-name {
+    align-self: end;
+  }
+
+  .site-tag {
+    align-self: start;
+  }
+
+  .site-nav {
+    justify-self: end;
+    font-size: 1.0625rem;
+  }
+}
+
+/* The narrowest phones: the four links stay on one line. */
+@media (max-width: 25.99rem) {
+  .site-nav ul {
+    flex-wrap: nowrap;
+    gap: 0 0.9rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-nav a {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 22.49rem) {
+  .site-name {
+    font-size: 1.5rem;
+  }
+
+  .site-nav {
+    font-size: 0.9375rem;
+  }
+}
+
+/* The progress line: hidden unless the browser can tie it to the scroll. */
+.progress {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  background: var(--pass);
+  transform-origin: 0 50%;
+}
+
+/* --- Footer --------------------------------------------------------------------- */
+
+.site-footer {
+  background: var(--night);
+  color: var(--on-night-soft);
+  font-size: 0.9375rem;
+}
+
+.site-footer__inner {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 2.25rem var(--gutter) 2.75rem;
+  display: grid;
+  gap: 1rem 3rem;
+}
+
+@media (min-width: 48rem) {
+  .site-footer__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.site-footer p {
+  margin: 0 0 0.25rem;
+}
+
+.site-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  list-style: none;
+}
+
+.site-footer a {
+  color: var(--on-night);
+  text-decoration-color: var(--pass-bright);
+}
+
+/* --- Buttons ------------------------------------------------------------------- */
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.6rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  font-weight: 750;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    transform 0.15s;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button--primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.button--primary:hover {
+  background: var(--pass-ink);
+  border-color: var(--pass-ink);
+}
+
+.button--secondary {
+  background: transparent;
+  color: var(--ink);
+}
+
+.button--secondary:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.band--night .button {
+  border-color: var(--pass-bright);
+}
+
+.band--night .button--primary {
+  background: var(--pass-bright);
+  color: var(--ink);
+}
+
+.band--night .button--primary:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+}
+
+.band--night .button--secondary {
+  color: var(--on-night);
+}
+
+.band--night .button--secondary:hover {
+  background: var(--pass-bright);
+  color: var(--ink);
+}
+
+/* On a narrow phone the buttons take the whole line. */
+@media (max-width: 30rem) {
+  .cta .button {
+    flex: 1 1 100%;
+  }
+}
+
+.cta-note {
+  max-width: 34rem;
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.band--night .cta-note {
+  color: var(--on-night-soft);
+}
+
+.band--pass .cta-note {
+  color: var(--ink);
+}
+
+/* --- Bands: full-width sections that alternate light and dark ------------------- */
+
+.band {
+  position: relative;
+}
+
+.band--paper {
+  background: var(--paper);
+}
+
+.band--mist {
+  background: var(--mist);
+}
+
+.band--night {
+  background: var(--night);
+  color: var(--on-night);
+}
+
+.band--pass {
+  background: var(--pass-bright);
+  color: var(--ink);
+}
+
+/* A faint grid of dots on the night bands: an empty history of runs. */
+.band--night::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.07) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+  pointer-events: none;
+}
+
+.band__inner {
+  position: relative;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: var(--band-y) var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem 4rem;
+}
+
+@media (min-width: 62rem) {
+  .band__inner--split {
+    grid-template-columns: 17rem minmax(0, 1fr);
+  }
+
+  .band__inner--split > .band__title {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    align-self: start;
+    font-size: clamp(2.25rem, 3.4vw, 2.75rem);
+  }
+}
+
+.band__title {
+  font-size: clamp(2.25rem, 4.8vw, 3.5rem);
+  font-weight: 800;
+  line-height: 0.98;
+}
+
+.band__lead {
+  max-width: var(--measure);
+  font-size: clamp(1.125rem, 1.7vw, 1.3125rem);
+  line-height: 1.5;
+}
+
+.band--night .band__lead,
+.band--night .soft {
+  color: var(--on-night-soft);
+}
+
+.soft {
+  color: var(--ink-soft);
+}
+
+.stack > * + * {
+  margin-top: 1.25rem;
+}
+
+/* A wide column: the text stays narrow; code, tables and grids run wide. */
+.stack--wide > p,
+.stack--wide > .plain-list {
+  max-width: var(--measure);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+.plain-list {
+  padding-left: 1.2rem;
+}
+
+.plain-list li {
+  margin-top: 0.5rem;
+  padding-left: 0.2rem;
+}
+
+.plain-list li::marker {
+  color: var(--pass);
+}
+
+/* --- Hero: the headline, the story in four beats, the run of checks ----------- */
+
+.hero__inner {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: clamp(2rem, 4.5vw, 3.5rem) var(--gutter) clamp(3rem, 7vw, 5.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem 4rem;
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    row-gap: 2.75rem;
+  }
+
+  /* The headline runs across the page; the story and the run sit under it. */
+  .hero__title {
+    grid-column: 1 / -1;
+  }
+
+  .hero__aside {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+}
+
+.hero__title {
+  font-size: clamp(3rem, 9.4vw, 7.5rem);
+  font-weight: 800;
+  line-height: 0.9;
+  /* A line break in the text of the headline is kept: one sentence per line. */
+  white-space: pre-line;
+}
+
+.beats {
+  margin: 0 0 2rem;
+  list-style: none;
+}
+
+.beat {
+  display: grid;
+  gap: 0.15rem 1.25rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.beat:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 40rem) {
+  .beat {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+  }
+}
+
+.beat__when {
+  padding-top: 0.15rem;
+  font-size: 0.9375rem;
+  font-weight: 750;
+  line-height: 1.4;
+  color: var(--pass-ink);
+}
+
+.beat p {
+  margin: 0;
+  font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
+  line-height: 1.5;
+}
+
+/* --- The run of checks: what a caught mistake looks like ----------------------- */
+
+.ci {
+  margin: 0;
+}
+
+.ci__card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--night);
+  color: var(--on-night);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.06) inset,
+    0 24px 48px -24px rgb(11 20 34 / 0.55);
+}
+
+.ci__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--night-line);
+  font-family: var(--font-mono);
+  font-stretch: 85%;
+  font-size: 0.75rem;
+  color: var(--on-night-soft);
+}
+
+.ci__bar-status {
+  margin-left: auto;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(255 122 133 / 0.14);
+  color: var(--fail-bright);
+  font-weight: 700;
+}
+
+.ci__bar-status--pass {
+  background: rgb(61 220 132 / 0.14);
+  color: var(--pass-bright);
+}
+
+.ci__checks {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.9rem 1rem;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-stretch: 85%;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.ci__check {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.ci__icon {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.ci__check--pass .ci__icon {
+  background: var(--pass-bright);
+  color: var(--night);
+}
+
+.ci__check--fail {
+  color: var(--fail-bright);
+  font-weight: 700;
+}
+
+.ci__check--fail .ci__icon {
+  background: var(--fail-bright);
+  color: var(--night);
+}
+
+.ci__check--skip {
+  color: var(--on-night-soft);
+}
+
+.ci__check--skip .ci__icon {
+  border: 1.5px solid var(--night-line);
+  color: var(--on-night-soft);
+}
+
+.ci__output {
+  margin: 0;
+  padding: 1rem;
+  border-top: 1px solid var(--night-line);
+  border-left: 3px solid var(--fail-bright);
+  background: rgb(255 122 133 / 0.07);
+  font-size: 0.78125rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ci__output code {
+  font-size: inherit;
+}
+
+.ci__title {
+  color: var(--fail-bright);
+  font-weight: 700;
+}
+
+.ci__hint {
+  color: var(--on-night-soft);
+}
+
+.ci figcaption {
+  margin-top: 0.85rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/*
+ * The switch: the same run, red and green. Both states lie in one cell, so the
+ * card keeps its height; the hidden one is out of sight and out of the
+ * accessibility tree.
+ */
+.ci__card {
+  display: grid;
+}
+
+.ci__run {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ci__run--green,
+.ci__caption--green,
+.ci__fix-back {
+  display: none;
+}
+
+.ci__toggle:checked ~ .ci__card .ci__run--red {
+  visibility: hidden;
+}
+
+.ci__toggle:checked ~ .ci__card .ci__run--green {
+  display: flex;
+}
+
+.ci__toggle:checked ~ figcaption .ci__caption--red,
+.ci__toggle:checked ~ .ci__fix .ci__fix-run {
+  display: none;
+}
+
+.ci__toggle:checked ~ figcaption .ci__caption--green,
+.ci__toggle:checked ~ .ci__fix .ci__fix-back {
+  display: inline;
+}
+
+.ci__passed {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--night-line);
+  background: rgb(61 220 132 / 0.06);
+  color: var(--pass-bright);
+  font-family: var(--font-mono);
+  font-stretch: 85%;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.ci__passed svg {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.ci__fix {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  padding: 0.5rem 1.05rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.ci__fix::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--fail);
+}
+
+.ci__toggle:checked ~ .ci__fix::before {
+  background: var(--pass);
+}
+
+.ci__fix:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.ci__toggle:focus-visible ~ .ci__fix {
+  outline: 3px solid var(--pass);
+  outline-offset: 3px;
+}
+
+.band--night .ci figcaption {
+  color: var(--on-night-soft);
+}
+
+.band--night .ci__card,
+.band--mist .ci__card {
+  box-shadow: none;
+}
+
+.band--night .ci__card {
+  background: var(--night-raised);
+}
+
+/* --- "What I do": three places where a mistake is expensive -------------------- */
+
+.places {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .places {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.place {
+  padding: 1.5rem 1.5rem 1.6rem;
+  border: 1px solid var(--night-line);
+  border-radius: var(--radius);
+  background: var(--night-raised);
+}
+
+.place__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  line-height: 1;
+  color: var(--pass-bright);
+}
+
+.place__label {
+  margin: 1.1rem 0 0.3rem;
+  font-size: 0.875rem;
+  color: var(--on-night-soft);
+}
+
+.place__rule {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+
+.columns {
+  display: grid;
+  gap: 1.25rem 3rem;
+}
+
+@media (min-width: 48rem) {
+  .columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Three short paragraphs: one column until there is room for three. */
+@media (min-width: 48rem) and (max-width: 61.99rem) {
+  .columns--3 {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: var(--measure);
+  }
+}
+
+@media (min-width: 62rem) {
+  .columns--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.columns p {
+  margin: 0;
+}
+
+/* --- A diff: what is added and what is not ------------------------------------- */
+
+.diff {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 52rem) {
+  .diff {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.diff__panel {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.diff__head {
+  padding: 0.9rem 1.25rem;
+  font-family: var(--font-text);
+  font-size: 1.1875rem;
+  font-weight: 750;
+}
+
+.diff__panel--plus .diff__head {
+  background: var(--pass-tint);
+  color: var(--pass-ink);
+}
+
+.diff__panel--minus .diff__head {
+  background: var(--fail-tint);
+  color: var(--fail-ink);
+}
+
+.diff__lines {
+  list-style: none;
+}
+
+.diff__line {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.diff__sign {
+  padding: 0.8rem 0 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.diff__panel--plus .diff__sign {
+  background: var(--pass-tint);
+  color: var(--pass-ink);
+}
+
+.diff__panel--minus .diff__sign {
+  background: var(--fail-tint);
+  color: var(--fail-ink);
+}
+
+.diff__text {
+  padding: 0.8rem 1.1rem 0.85rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+/* --- Files: what stays with the client ------------------------------------------ */
+
+.files {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .files {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 72rem) {
+  .files {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.file {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.4rem 1.4rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+/* The folded corner of a sheet of paper. */
+.file::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 0 var(--radius) 0 0.4rem;
+  background: linear-gradient(225deg, var(--mist) 50%, var(--line) 50%);
+}
+
+.file:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 30px -22px rgb(11 20 34 / 0.45);
+}
+
+.file__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--pass);
+}
+
+.file .file__tag {
+  margin: 1rem 0 0.4rem;
+  font-family: var(--font-mono);
+  font-stretch: 85%;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.file h3 {
+  margin-bottom: 0.45rem;
+}
+
+.file p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.note {
+  max-width: 52rem;
+  padding: 1.1rem 1.4rem;
+  border-left: 4px solid var(--pass);
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: var(--paper);
+  font-size: 1.125rem;
+}
+
+/* --- The flow: free steps first, paid work after ------------------------------- */
+
+.flow {
+  position: relative;
+  counter-reset: step;
+}
+
+.flow__phase + .flow__phase {
+  margin-top: 1.75rem;
+}
+
+.flow__label {
+  display: inline-block;
+  margin: 0 0 0.9rem 3.25rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.flow__phase--free .flow__label {
+  background: var(--pass-tint);
+  color: var(--pass-ink);
+}
+
+.flow__phase--paid .flow__label {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.flow__steps {
+  position: relative;
+  list-style: none;
+}
+
+/* The line that connects the steps. */
+.flow__steps::before {
+  content: "";
+  position: absolute;
+  left: 1.0625rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--line);
+}
+
+.flow__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0 1rem;
+  padding: 0.35rem 0 1.4rem;
+  counter-increment: step;
+}
+
+.flow__step:last-child {
+  padding-bottom: 0.35rem;
+}
+
+.flow__step::before {
+  content: counter(step);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.375rem;
+  line-height: 1;
+}
+
+.flow__phase--free .flow__step::before {
+  border-color: var(--pass);
+  color: var(--pass-ink);
+}
+
+.flow__step h3 {
+  margin: 0.25rem 0 0.3rem;
+}
+
+.flow__step p {
+  margin: 0;
+  max-width: 40rem;
+}
+
+/* --- Proof: big numbers, smaller numbers, a history of runs ------------------- */
+
+.bignums {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .bignums {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bignum__value {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(4rem, 9vw, 6.5rem);
+  line-height: 0.85;
+  font-variant-numeric: lining-nums;
+  white-space: nowrap;
+}
+
+.bignum--zero .bignum__value {
+  color: var(--pass-bright);
+}
+
+.bignum__label {
+  display: block;
+  margin-top: 0.75rem;
+  max-width: 18rem;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+.bignum__source {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--on-night-soft);
+}
+
+.stats {
+  display: grid;
+  gap: 1px;
+  border: 1px solid var(--night-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--night-line);
+  list-style: none;
+}
+
+@media (min-width: 36rem) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  padding: 1.1rem 1.25rem 1.2rem;
+  background: var(--night-raised);
+}
+
+.stat__value {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.25rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.stat__label {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--on-night-soft);
+}
+
+.runs {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+}
+
+@media (min-width: 60rem) {
+  .runs {
+    grid-template-columns: 1.6fr 1fr;
+  }
+}
+
+.run {
+  margin: 0;
+}
+
+.run__dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.run__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--pass-bright);
+}
+
+.run__dot--fail {
+  background: var(--fail-bright);
+}
+
+.run figcaption {
+  margin-top: 0.85rem;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--on-night-soft);
+}
+
+.subhead {
+  font-family: var(--font-text);
+  font-size: 1.1875rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.band--night .plain-list li::marker {
+  color: var(--pass-bright);
+}
+
+.band--night a {
+  text-decoration-color: var(--pass-bright);
+}
+
+/* --- Price: a receipt that lists what is included ----------------------------- */
+
+.pricing {
+  display: grid;
+  gap: 2rem 4rem;
+  align-items: start;
+}
+
+@media (min-width: 56rem) {
+  .pricing {
+    grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+  }
+}
+
+.receipt {
+  --tooth: 12px;
+  position: relative;
+  padding: 1.75rem 1.5rem 2rem;
+  background: var(--paper);
+  font-family: var(--font-mono);
+  font-stretch: 85%;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  filter: drop-shadow(0 16px 22px rgb(11 20 34 / 0.14));
+  /* Torn edges, top and bottom. */
+  mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--tooth) 51% repeat-x,
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--tooth) 51% repeat-x;
+}
+
+.receipt__title {
+  margin: 0 0 1rem;
+  font-family: var(--font-text);
+  font-size: 1.1875rem;
+  font-weight: 750;
+}
+
+.receipt__lines {
+  list-style: none;
+}
+
+.receipt__line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+}
+
+.receipt__line::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  min-width: 1rem;
+  border-bottom: 2px dotted var(--line);
+  transform: translateY(-0.25em);
+}
+
+.receipt__line span:last-child {
+  order: 2;
+  color: var(--pass-ink);
+  font-weight: 700;
+}
+
+.receipt__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px dashed var(--ink);
+}
+
+.receipt__total-label {
+  font-family: var(--font-text);
+  font-size: 1.1875rem;
+  font-weight: 750;
+}
+
+.receipt__amount {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3.25rem, 8vw, 4.25rem);
+  line-height: 0.9;
+  white-space: nowrap;
+}
+
+.receipt__term {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+
+.receipt__intro {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-text);
+  font-size: 1rem;
+}
+
+.checks-list {
+  list-style: none;
+}
+
+.pricing__cta {
+  margin-top: 1.5rem;
+}
+
+.checks-list li {
+  position: relative;
+  padding: 0.55rem 0 0.55rem 2.25rem;
+  font-size: 1.125rem;
+}
+
+.checks-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0.65rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--pass);
+  color: var(--paper);
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* --- Questions: open one at a time, all of them in the page ------------------- */
+
+.faq {
+  border-top: 1px solid var(--line);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.15rem 0;
+  font-size: 1.25rem;
+  font-weight: 750;
+  line-height: 1.3;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "+";
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    transform 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.faq summary:hover::after {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.faq details[open] summary::after {
+  content: "–";
+  background: var(--pass);
+  color: var(--paper);
+}
+
+.band--mist .faq summary::after {
+  background: var(--paper);
+}
+
+.band--mist .faq,
+.band--mist .faq details {
+  border-color: #d3dae6;
+}
+
+.faq__answer {
+  max-width: 44rem;
+  padding: 0 0 1.35rem;
+}
+
+/* --- About: a person, not a company ------------------------------------------- */
+
+.about {
+  display: grid;
+  gap: 1.75rem 3rem;
+  align-items: start;
+}
+
+@media (min-width: 48rem) {
+  .about {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+
+.about__mark {
+  display: grid;
+  place-items: center;
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 1.75rem;
+  background: var(--ink);
+  color: var(--pass-bright);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.about__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.25rem, 4.8vw, 3.5rem);
+  line-height: 0.98;
+}
+
+.about__role {
+  margin: 0.5rem 0 1.25rem;
+  font-size: 1.0625rem;
+  color: var(--ink-soft);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  list-style: none;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.5rem 1.05rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.chip:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* --- Facts: a spec sheet for search engines and for people in a hurry --------- */
+
+.facts__summary {
+  max-width: 50rem;
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.facts__list {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0 3rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 62rem) {
+  .facts__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.facts__row {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.facts__row dt {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.facts__row dd {
+  margin: 0.2rem 0 0;
+}
+
+.facts__checked {
+  margin: 1.25rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/* --- Closing: the page ends green ----------------------------------------------- */
+
+.closing__title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.closing__text {
+  max-width: 38rem;
+  margin: 0;
+  font-size: clamp(1.125rem, 1.8vw, 1.3125rem);
+  line-height: 1.5;
+}
+
+.band--pass .button--primary:hover {
+  background: var(--night);
+  border-color: var(--night);
+}
+
+.band--pass a:not(.button) {
+  text-decoration-color: var(--ink);
+}
+
+/* --- Inner pages: the opening of a page ---------------------------------------- */
+
+.page-hero {
+  background: var(--mist);
+}
+
+.page-hero__inner {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) var(--gutter);
+}
+
+.page-hero__title {
+  max-width: 56rem;
+  font-size: clamp(2.75rem, 6.6vw, 4.75rem);
+  font-weight: 800;
+  line-height: 0.94;
+}
+
+.page-hero__lead {
+  max-width: 46rem;
+  margin: 1.5rem 0 0;
+  font-size: clamp(1.125rem, 1.9vw, 1.3125rem);
+  line-height: 1.5;
+}
+
+.page-hero__meta {
+  margin: 1.25rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/* --- Tables of numbers ----------------------------------------------------------- */
+
+.numbers {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.numbers caption {
+  padding-bottom: 0.75rem;
+  text-align: left;
+  font-weight: 750;
+  font-size: 1.1875rem;
+}
+
+.numbers th {
+  padding: 0 1.5rem 0.6rem 0;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.numbers td {
+  padding: 0.85rem 1.5rem 0.9rem 0;
+  border-top: 1px solid var(--line);
+  vertical-align: baseline;
+}
+
+.numbers td:last-child,
+.numbers th:last-child {
+  padding-right: 0;
+}
+
+.numbers__value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: lining-nums;
+}
+
+.numbers__source {
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/* A table on a mist band lies on a white sheet. */
+.sheet {
+  padding: 1.25rem 1.5rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.band--night .numbers td,
+.band--night .numbers tr {
+  border-top-color: var(--night-line);
+}
+
+.band--night .numbers th,
+.band--night .numbers__source {
+  color: var(--on-night-soft);
+}
+
+@media (max-width: 41.99rem) {
+  .numbers thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .numbers tr {
+    display: block;
+    padding: 0.9rem 0 0.95rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .numbers td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .numbers__source {
+    margin-top: 0.15rem;
+  }
+}
+
+/* --- The six parts of the system ------------------------------------------------- */
+
+.layers {
+  list-style: none;
+  counter-reset: layer;
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 52rem) {
+  .layers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.layers > li {
+  position: relative;
+  padding: 1.4rem 1.4rem 1.5rem 4.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  counter-increment: layer;
+}
+
+.layers > li::before {
+  content: counter(layer);
+  position: absolute;
+  left: 1.25rem;
+  top: 1.15rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.75rem;
+  line-height: 1;
+  color: var(--pass);
+}
+
+.layers h3 {
+  margin-bottom: 0.4rem;
+}
+
+.layers p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.layers .layers__ref {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line);
+}
+
+.layers .layers__where {
+  margin-top: 0.85rem;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.band--paper .layers > li {
+  border-color: transparent;
+  background: var(--mist);
+}
+
+.band--paper .layers .layers__ref {
+  border-top-color: #d3dae6;
+}
+
+.band--paper .layers code {
+  background: var(--paper);
+}
+
+/* --- Code: always on a night card ------------------------------------------------ */
+
+.code {
+  position: relative;
+  margin: 0;
+}
+
+.code pre,
+.prose pre {
+  margin: 0;
+  padding: 1rem 1.2rem;
+  border-radius: 0.8rem;
+  background: var(--night) !important;
+  color: var(--on-night);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+.code pre code,
+.prose pre code {
+  font-size: inherit;
+}
+
+.prose > pre {
+  width: max-content;
+  min-width: 100%;
+  max-width: min(64rem, calc(100vw - 2 * var(--gutter)));
+}
+
+.code--copy pre {
+  padding-right: 6.5rem;
+}
+
+/* A command and its output: two blocks in a row become one terminal. */
+.stack > .code + .code {
+  margin-top: 0;
+}
+
+.code:has(+ .code) pre {
+  border-radius: 0.8rem 0.8rem 0 0;
+}
+
+.code + .code pre {
+  border-top: 1px solid var(--night-line);
+  border-radius: 0 0 0.8rem 0.8rem;
+  color: var(--on-night-soft);
+}
+
+.code__copy {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--night-line);
+  border-radius: 999px;
+  background: var(--night-raised);
+  color: var(--on-night);
+  font: 600 0.8125rem/1.3 var(--font-text);
+  cursor: pointer;
+}
+
+.code__copy:hover {
+  border-color: var(--pass-bright);
+  color: var(--pass-bright);
+}
+
+.command-steps {
+  list-style: none;
+  counter-reset: step;
+}
+
+.command-steps > li {
+  position: relative;
+  padding: 0 0 1.5rem 3rem;
+  counter-increment: step;
+}
+
+.command-steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -0.1rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.command-steps p {
+  margin-bottom: 0.6rem;
+}
+
+.sources {
+  list-style: none;
+}
+
+.sources li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sources span {
+  color: var(--ink-soft);
+}
+
+/* --- Blog -------------------------------------------------------------------------- */
+
+.posts {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+}
+
+.post-card {
+  position: relative;
+  padding: 1.75rem 1.75rem 1.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--ink);
+  box-shadow: 0 18px 30px -22px rgb(11 20 34 / 0.45);
+}
+
+.post-card h2 {
+  font-size: clamp(2rem, 4.4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.post-card h2 a {
+  text-decoration: none;
+}
+
+.post-card h2 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+}
+
+.post-card:hover h2 a {
+  color: var(--pass-ink);
+}
+
+.post-card p {
+  max-width: var(--measure);
+  margin: 0.7rem 0 0;
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 1.25rem;
+  margin-top: 0.9rem;
+  list-style: none;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.article__inner {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem 4rem;
+}
+
+@media (min-width: 66rem) {
+  .article__inner {
+    grid-template-columns: minmax(0, var(--measure)) minmax(0, 20rem);
+    justify-content: space-between;
+  }
+
+  .article__aside {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    align-self: start;
+  }
+}
+
+/* The author next to the article: who wrote it and how to reach him. */
+.author-card {
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background: var(--mist);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.author-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.author-card__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.9rem;
+  background: var(--ink);
+  color: var(--pass-bright);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.875rem;
+  line-height: 1;
+}
+
+.author-card__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.625rem;
+  line-height: 1.05;
+}
+
+.author-card__role {
+  margin: 0.15rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.author-card .button {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.article__back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+}
+
+.prose {
+  max-width: var(--measure);
+  font-size: 1.1875rem;
+  line-height: 1.65;
+}
+
+.prose > * + * {
+  margin-top: 1.25rem;
+}
+
+.prose h2 {
+  margin-top: 3rem;
+  font-size: clamp(2rem, 4.4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.prose h3 {
+  margin-top: 2rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.3rem;
+}
+
+.prose li + li {
+  margin-top: 0.4rem;
+}
+
+.prose li::marker {
+  color: var(--pass);
+  font-weight: 750;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 4px solid var(--pass);
+  color: var(--ink-soft);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.0625rem;
+}
+
+.prose th,
+.prose td {
+  padding: 0.65rem 1rem 0.7rem 0;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose td:first-child {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.625rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.prose thead th {
+  border-top: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.article__sources {
+  max-width: var(--measure);
+  margin-top: 3rem;
+  padding: 1.25rem 1.4rem 1.4rem;
+  border-radius: var(--radius);
+  background: var(--mist);
+  font-size: 1rem;
+}
+
+.article__sources h2 {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  font-weight: 750;
+}
+
+.article__sources ul {
+  padding-left: 1.2rem;
+}
+
+/* --- Not found ------------------------------------------------------------------- */
+
+.not-found {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: clamp(3rem, 10vw, 7rem) var(--gutter);
+}
+
+.not-found h1 {
+  font-size: clamp(2.75rem, 7vw, 4.75rem);
+  font-weight: 800;
+}
+
+.not-found p {
+  margin: 1rem 0 1.5rem;
+}
+
+.not-found__block + .not-found__block {
+  margin-top: 3rem;
+}
+
+/* --- Motion: only where it shows what is happening ----------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The run of checks plays once when the page opens. */
+  .ci__card--live .ci__check,
+  .ci__card--live .ci__output,
+  .ci__card--live .ci__passed,
+  .ci__card--live .ci__bar-status {
+    animation: ci-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(0.3s + var(--i, 0) * 0.34s);
+  }
+
+  .ci__card--live .ci__check--fail .ci__icon {
+    animation: ci-pop 0.5s ease-out both;
+    animation-delay: calc(0.5s + var(--i, 0) * 0.34s);
+  }
+
+  /* The green run is quicker: the reader has just pressed the switch. */
+  .ci__card--live .ci__run--green .ci__check,
+  .ci__card--live .ci__run--green .ci__passed,
+  .ci__card--live .ci__run--green .ci__bar-status {
+    animation-delay: calc(0.1s + var(--i, 0) * 0.2s);
+  }
+
+  .ci__card--live .ci__run--green .ci__icon,
+  .ci__card--live .ci__passed svg {
+    animation: ci-pop 0.45s ease-out both;
+    animation-delay: calc(0.2s + var(--i, 0) * 0.2s);
+  }
+
+  /* Coming back to the red run plays it again. */
+  .ci__toggle:checked ~ .ci__card--live .ci__run--red * {
+    animation: none;
+  }
+
+  @keyframes ci-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes ci-pop {
+    0% {
+      transform: scale(0.4);
+    }
+    60% {
+      transform: scale(1.35);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @supports (animation-timeline: scroll()) {
+    /* How far the reader has come. */
+    .progress {
+      display: block;
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+
+    @keyframes progress {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    /* The line of the flow draws itself as the steps scroll by. */
+    .flow__steps::after {
+      content: "";
+      position: absolute;
+      left: 1.0625rem;
+      top: 0.5rem;
+      bottom: 0.5rem;
+      width: 2px;
+      background: var(--pass);
+      transform-origin: 50% 0;
+      animation: draw linear both;
+      animation-timeline: view();
+      animation-range: entry 25% exit 55%;
+    }
+
+    @keyframes draw {
+      from {
+        transform: scaleY(0);
+      }
+      to {
+        transform: scaleY(1);
+      }
+    }
+
+    /* The history of runs fills in from left to right. */
+    .run__dots {
+      animation: wipe linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 90%;
+    }
+
+    @keyframes wipe {
+      from {
+        clip-path: inset(0 100% 0 0);
+      }
+      to {
+        clip-path: inset(0 0 0 0);
+      }
+    }
+  }
+}
+
+@media print {
+  .site-header,
+  .cta,
+  .code__copy,
+  .skip-link {
+    display: none;
+  }
+}

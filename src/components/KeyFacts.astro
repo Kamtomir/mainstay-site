@@ -1,0 +1,38 @@
+---
+/**
+ * "In short": facts an answer engine can quote without the rest of the page.
+ * Each line names its subject and carries its numbers; the date says when the
+ * facts were last checked against the sources. Rendered as a definition list:
+ * a term and its value read the same to a person and to a parser.
+ */
+import Band from "./Band.astro";
+import { inline, text, typo, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+  title: string;
+  summary: string;
+  items: readonly { term: string; value: string }[];
+  tone?: "paper" | "mist";
+}
+
+const { lang, ui, title, summary, items, tone = "paper" } = Astro.props;
+---
+
+<Band id="facts" tone={tone} title={title} split>
+  <div>
+    <p class="facts__summary" set:html={inline(summary, ui, lang)} />
+    <dl class="facts__list">
+      {
+        items.map((item) => (
+          <div class="facts__row">
+            <dt>{typo(item.term)}</dt>
+            <dd set:html={inline(item.value, ui, lang)} />
+          </div>
+        ))
+      }
+    </dl>
+    <p class="facts__checked">{text(ui.labels.factsChecked, ui)}</p>
+  </div>
+</Band>

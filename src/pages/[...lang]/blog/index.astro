@@ -1,0 +1,76 @@
+---
+/** The list of articles of one language, the newest first. */
+import Base from "../../../layouts/Base.astro";
+import Band from "../../../components/Band.astro";
+import Closing from "../../../components/Closing.astro";
+import PageHero from "../../../components/PageHero.astro";
+import { abs, getPosts, getUi, langPaths, pathFor, postKey, postPath, readingMinutes, formatters, safe, typo } from "../../../lib/site";
+import { blog as blogNode, breadcrumbs } from "../../../lib/jsonld";
+
+export const getStaticPaths = langPaths;
+
+const { lang } = Astro.props;
+const ui = await getUi(lang);
+const f = formatters(ui);
+const posts = await getPosts(lang);
+const url = abs(pathFor(lang, "/blog/"));
+
+const jsonld = [
+  blogNode(
+    ui.blog.title,
+    ui.blog.description,
+    url,
+    posts.map((post) => ({
+      headline: post.data.title,
+      url: abs(postPath(lang, postKey(post).slug)),
+      datePublished: post.data.date.toISOString().slice(0, 10),
+    })),
+    ui,
+  ),
+  breadcrumbs([{ name: ui.nav.service, path: pathFor(lang, "/") }, { name: ui.nav.blog }]),
+];
+---
+
+<Base lang={lang} path="/blog/" title={ui.blog.title} description={ui.blog.description} section="blog" jsonld={jsonld}>
+  <PageHero title={safe(ui.blog.heading)} lead={safe(ui.blog.intro)}>
+    <p class="page-hero__meta"><a href={pathFor(lang, "/rss.xml")}>{ui.labels.rss}</a></p>
+  </PageHero>
+
+  <Band id="articles" tone="paper">
+    <ol class="posts" reversed>
+      {
+        posts.map((post) => {
+          const { slug } = postKey(post);
+          const updated = post.data.updated ?? post.data.date;
+          return (
+            <li>
+              <article class="post-card">
+                <h2>
+                  <a href={postPath(lang, slug)}>{typo(post.data.title)}</a>
+                </h2>
+                <p>{typo(post.data.description)}</p>
+                <ul class="post-meta">
+                  <li>
+                    {ui.labels.published}{" "}
+                    <time datetime={post.data.date.toISOString().slice(0, 10)}>{f.date(post.data.date)}</time>
+                  </li>
+                  {updated.valueOf() !== post.data.date.valueOf() && (
+                    <li>
+                      {ui.labels.updated}{" "}
+                      <time datetime={updated.toISOString().slice(0, 10)}>{f.date(updated)}</time>
+                    </li>
+                  )}
+                  <li>
+                    {readingMinutes(post.body)} {ui.labels.minutes}
+                  </li>
+                </ul>
+              </article>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </Band>
+
+  <Closing lang={lang} ui={ui} title={ui.site.tagline} text={safe(ui.site.description)} />
+</Base>

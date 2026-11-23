@@ -1,0 +1,138 @@
+---
+/**
+ * The case page: the numbers of the reference deployment, their sources and
+ * the commands that reproduce them. It repeats CASE.md of the mainstay
+ * repository. Text: src/locales/<language>/case.yaml. Numbers and commands:
+ * src/data/case.ts.
+ */
+import { getEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Band from "../../components/Band.astro";
+import Closing from "../../components/Closing.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import KeyFacts from "../../components/KeyFacts.astro";
+import Layers from "../../components/Layers.astro";
+import Numbers from "../../components/Numbers.astro";
+import PageHero from "../../components/PageHero.astro";
+import RunDots from "../../components/RunDots.astro";
+import Section from "../../components/Section.astro";
+import { caseData, reproduce } from "../../data/case";
+import { abs, fill, getUi, inline, langPaths, pathFor, plain, site } from "../../lib/site";
+import { article, breadcrumbs, dataset } from "../../lib/jsonld";
+
+export const getStaticPaths = langPaths;
+
+const { lang } = Astro.props;
+const ui = await getUi(lang);
+const entry = await getEntry("caseStudy", lang);
+if (!entry) throw new Error(`src/locales/${lang}/case.yaml is missing`);
+const page = entry.data;
+
+// The picture of runs uses the captions of the landing page: the same counts.
+const home = await getEntry("home", lang);
+if (!home) throw new Error(`src/locales/${lang}/home.yaml is missing`);
+const runsText = home.data.proof.runs;
+const runs = caseData.last30;
+
+const title = fill(page.meta.title, ui);
+const description = plain(page.meta.description, ui);
+const html = (text: string) => inline(text, ui, lang);
+const url = abs(pathFor(lang, "/case/"));
+const published = new Date(`${site.publishedAt}T00:00:00Z`);
+const updated = new Date(`${site.factsCheckedAt}T00:00:00Z`);
+
+const jsonld = [
+  article(
+    {
+      type: "TechArticle",
+      headline: plain(page.hero.title, ui),
+      description,
+      url,
+      datePublished: site.publishedAt,
+      dateModified: site.factsCheckedAt,
+    },
+    ui,
+  ),
+  dataset(
+    {
+      name: plain(page.hero.title, ui),
+      description: plain(page.numbers.intro, ui),
+      url,
+      temporalCoverage: `${caseData.periodStart}/${caseData.periodEnd}`,
+      measurementTechnique: plain(page.reproduce.intro, ui),
+      variables: [
+        { name: "Unit tests passing", value: caseData.unitTests },
+        { name: "Integration tests on a real Postgres", value: caseData.integrationTests },
+        { name: "Invariant guard suites", value: caseData.guardSuites },
+        { name: "Pull requests merged into main", value: caseData.mergedPrs },
+        { name: "Commits", value: caseData.commits },
+        { name: "SQL migrations", value: caseData.migrations },
+        { name: "TypeScript source files, tests excluded", value: caseData.sourceFiles },
+        { name: "Decision documents", value: caseData.decisionDocs },
+        { name: "Full CI run", value: caseData.ciFull.min * 60 + caseData.ciFull.s, unitText: "second" },
+      ],
+    },
+    ui,
+  ),
+  breadcrumbs([{ name: ui.nav.service, path: pathFor(lang, "/") }, { name: ui.nav.case }]),
+];
+---
+
+<Base
+  lang={lang}
+  path="/case/"
+  title={title}
+  description={description}
+  section="case"
+  ogType="article"
+  published={published}
+  updated={updated}
+  jsonld={jsonld}
+>
+  <PageHero title={html(page.hero.title)} lead={html(page.hero.lead)} />
+
+  <KeyFacts lang={lang} ui={ui} title={page.summary.title} summary={page.summary.text} items={page.summary.items} />
+
+  <Band id="numbers" tone="mist" title={page.numbers.title}>
+    <p class="band__lead" set:html={html(page.numbers.intro)} />
+    <div class="sheet">
+      <Numbers lang={lang} ui={ui} rows={page.numbers.rows} />
+    </div>
+  </Band>
+
+  <Band id="recent" tone="night" title={page.recent.title}>
+    <p class="band__lead" set:html={html(page.recent.intro)} />
+    <div class="runs">
+      <RunDots green={runs.greenRuns} red={runs.redRuns} caption={html(runsText.all)} />
+      <RunDots green={runs.mainGreenPushes} caption={html(runsText.main)} />
+    </div>
+    <Numbers lang={lang} ui={ui} rows={page.recent.rows} />
+  </Band>
+
+  <Section id="reproduce" title={page.reproduce.title} wide>
+    <p set:html={html(page.reproduce.intro)} />
+    <p set:html={html(page.reproduce.testCounts)} />
+    <CodeBlock code={reproduce.testCounts} lang="bash" />
+    <CodeBlock code={reproduce.testCountsOutput} />
+    <p set:html={html(page.reproduce.outputNote)} />
+    <p set:html={html(page.reproduce.guardSuites)} />
+    <CodeBlock code={reproduce.guardSuites} lang="bash" />
+    <CodeBlock code={reproduce.guardSuitesOutput} />
+    <p set:html={html(page.reproduce.rest)} />
+    <CodeBlock code={reproduce.rest} lang="bash" />
+    <p set:html={html(page.reproduce.after)} />
+  </Section>
+
+  <Band id="layers" tone="mist" title={page.layers.title}>
+    <p class="band__lead" set:html={html(page.layers.intro)} />
+    <Layers lang={lang} ui={ui} reference />
+  </Band>
+
+  <Section id="limits" title={page.limits.title}>
+    <ul class="plain-list">
+      {page.limits.items.map((item) => <li set:html={html(item)} />)}
+    </ul>
+  </Section>
+
+  <Closing lang={lang} ui={ui} title={page.closing.title} text={html(page.closing.text)} />
+</Base>

@@ -1,0 +1,26 @@
+---
+import { fill, pathFor, site, type Ui } from "../lib/site";
+
+interface Props {
+  lang: string;
+  ui: Ui;
+}
+
+const { lang, ui } = Astro.props;
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p>{fill(ui.footer.note, ui)}</p>
+      <p>{ui.footer.license}</p>
+      <p>{ui.footer.noTracking}</p>
+    </div>
+    <ul>
+      <li><a href={site.repoUrl} rel="noopener">{ui.footer.links.github}</a></li>
+      <li><a href={site.consultUrl} rel="noopener">{ui.footer.links.telegram}</a></li>
+      <li><a href={pathFor(lang, "/rss.xml")}>{ui.footer.links.rss}</a></li>
+      <li><a href={pathFor(lang, "/llms.txt")}>{ui.footer.links.llms}</a></li>
+    </ul>
+  </div>
+</footer>

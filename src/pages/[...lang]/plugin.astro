@@ -1,0 +1,136 @@
+---
+/**
+ * The plugin page: three commands, what the setup does and does not do.
+ * Text: src/locales/<language>/plugin.yaml. Commands: src/data/case.ts.
+ */
+import { getEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Band from "../../components/Band.astro";
+import Closing from "../../components/Closing.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import Cta from "../../components/Cta.astro";
+import DiffLists from "../../components/DiffLists.astro";
+import Guard from "../../components/Guard.astro";
+import Layers from "../../components/Layers.astro";
+import PageHero from "../../components/PageHero.astro";
+import Section from "../../components/Section.astro";
+import { plugin } from "../../data/case";
+import { fill, getUi, inline, langPaths, pathFor, plain } from "../../lib/site";
+import { breadcrumbs, faqPage, sourceCode } from "../../lib/jsonld";
+
+export const getStaticPaths = langPaths;
+
+const { lang } = Astro.props;
+const ui = await getUi(lang);
+const entry = await getEntry("plugin", lang);
+if (!entry) throw new Error(`src/locales/${lang}/plugin.yaml is missing`);
+const page = entry.data;
+
+const title = fill(page.meta.title, ui);
+const description = plain(page.meta.description, ui);
+const html = (text: string) => inline(text, ui, lang);
+
+const jsonld = [
+  sourceCode(plain(page.hero.lead, ui), ui),
+  faqPage(page.faq.items.map((item) => ({ q: plain(item.q, ui), a: plain(item.a, ui) }))),
+  breadcrumbs([{ name: ui.nav.service, path: pathFor(lang, "/") }, { name: ui.nav.plugin }]),
+];
+---
+
+<Base lang={lang} path="/plugin/" title={title} description={description} section="plugin" jsonld={jsonld}>
+  <PageHero title={html(page.hero.title)} lead={html(page.hero.lead)} />
+
+  <Section id="install" title={page.install.title}>
+    <ol class="command-steps">
+      {
+        page.install.steps.map((step) => (
+          <li>
+            <p set:html={html(step.text)} />
+            <CodeBlock code={plugin[step.command]} ui={ui} />
+          </li>
+        ))
+      }
+    </ol>
+    <p set:html={html(page.install.after)} />
+    <Cta lang={lang} ui={ui} second="github" note={false} />
+  </Section>
+
+  <Band id="does" tone="mist">
+    <DiffLists
+      level={2}
+      plusTitle={page.does.title}
+      plus={page.does.items.map(html)}
+      minusTitle={page.doesNot.title}
+      minus={page.doesNot.items.map(html)}
+      minusId="does-not"
+    />
+  </Band>
+
+  <Section id="output" title={page.output.title} tone="night">
+    <p class="soft" set:html={html(page.output.intro)} />
+    <Guard caption={page.output.after} jobs={false} />
+  </Section>
+
+  <Section id="needs" title={page.needs.title}>
+    <ul class="plain-list">
+      {page.needs.items.map((item) => <li set:html={html(item)} />)}
+    </ul>
+  </Section>
+
+  <Section id="manual" title={page.manual.title} tone="mist" wide>
+    <p set:html={html(page.manual.text)} />
+    <CodeBlock code={plugin.firstGuard} lang="ts" />
+  </Section>
+
+  <Band id="layers" tone="paper" title={page.layers.title}>
+    <p class="band__lead" set:html={html(page.layers.intro)} />
+    <Layers lang={lang} ui={ui} />
+  </Band>
+
+  <Section id="questions" title={page.faq.title} tone="mist" wide>
+    <div class="faq">
+      {
+        page.faq.items.map((item, i) => (
+          <details open={i === 0}>
+            <summary set:html={html(item.q)} />
+            <div class="faq__answer" set:html={html(item.a)} />
+          </details>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section id="sources" title={page.links.title}>
+    <ul class="sources">
+      {
+        page.links.items.map((item) => (
+          <li>
+            <a href={item.href} rel="noopener">
+              {item.label}
+            </a>
+            <span> — {item.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <Closing lang={lang} ui={ui} title={page.closing.title} text={html(page.closing.text)} second="github" />
+
+  <script is:inline>
+    // Progressive enhancement: the commands are plain text in the page; this
+    // only reveals the copy buttons where the browser has a clipboard.
+    if (navigator.clipboard) {
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.hidden = false;
+        button.addEventListener("click", async () => {
+          const pre = button.parentElement.querySelector("pre");
+          await navigator.clipboard.writeText(pre.innerText.trim());
+          const label = button.textContent;
+          button.textContent = button.dataset.done;
+          setTimeout(() => (button.textContent = label), 1500);
+        });
+      });
+    }
+  </script>
+</Base>

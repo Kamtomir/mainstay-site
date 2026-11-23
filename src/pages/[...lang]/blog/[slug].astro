@@ -1,0 +1,152 @@
+---
+/**
+ * One article. The file name is the address: src/locales/ru/blog/some-post.md
+ * becomes /ru/blog/some-post/. The same file name in another language folder
+ * is the translation, and the two pages point at each other with hreflang.
+ */
+import { render } from "astro:content";
+import Base from "../../../layouts/Base.astro";
+import Closing from "../../../components/Closing.astro";
+import PageHero from "../../../components/PageHero.astro";
+import {
+  abs,
+  consultLink,
+  formatters,
+  getLangs,
+  getPosts,
+  getUi,
+  initials,
+  pathFor,
+  postKey,
+  postLangs,
+  postPath,
+  readingMinutes,
+  safe,
+  site,
+  typo,
+  type Post,
+} from "../../../lib/site";
+import { article, breadcrumbs } from "../../../lib/jsonld";
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const lang of await getLangs()) {
+    for (const post of await getPosts(lang)) {
+      paths.push({
+        params: { lang: lang === site.defaultLang ? undefined : lang, slug: postKey(post).slug },
+        props: { lang, post },
+      });
+    }
+  }
+  return paths;
+}
+
+interface Props {
+  lang: string;
+  post: Post;
+}
+
+const { lang, post } = Astro.props;
+const ui = await getUi(lang);
+const f = formatters(ui);
+const { slug } = postKey(post);
+const { Content } = await render(post);
+const published = post.data.date;
+const updated = post.data.updated ?? post.data.date;
+const path = `/blog/${slug}/`;
+const url = abs(postPath(lang, slug));
+const iso = (date: Date) => date.toISOString().slice(0, 10);
+
+const jsonld = [
+  article(
+    {
+      type: "BlogPosting",
+      headline: post.data.title,
+      description: post.data.description,
+      url,
+      datePublished: iso(published),
+      dateModified: iso(updated),
+      wordCount: (post.body ?? "").split(/\s+/).filter(Boolean).length,
+    },
+    ui,
+  ),
+  breadcrumbs([
+    { name: ui.nav.service, path: pathFor(lang, "/") },
+    { name: ui.nav.blog, path: pathFor(lang, "/blog/") },
+    { name: post.data.title },
+  ]),
+];
+---
+
+<Base
+  lang={lang}
+  path={path}
+  title={post.data.title}
+  description={post.data.description}
+  langs={await postLangs(slug)}
+  fallbackPath="/blog/"
+  section="blog"
+  ogType="article"
+  published={published}
+  updated={updated}
+  jsonld={jsonld}
+>
+  <article class="article">
+    <PageHero title={safe(post.data.title)} lead={safe(post.data.description)}>
+      <a slot="before" class="article__back" href={pathFor(lang, "/blog/")}>{ui.labels.back}</a>
+      <ul class="post-meta">
+        <li>{ui.author.name}</li>
+        <li>
+          {ui.labels.published}{" "}
+          <time datetime={iso(published)}>{f.date(published)}</time>
+        </li>
+        <li>
+          {ui.labels.updated}{" "}
+          <time datetime={iso(updated)}>{f.date(updated)}</time>
+        </li>
+        <li>
+          {readingMinutes(post.body)} {ui.labels.minutes}
+        </li>
+      </ul>
+    </PageHero>
+
+    <div class="article__inner">
+      <div>
+        <div class="prose">
+          <Content />
+        </div>
+
+        <footer class="article__sources">
+          <h2>{ui.labels.sources}</h2>
+          <ul>
+            {
+              post.data.sources.map((source) => (
+                <li>
+                  <a href={source.href} rel="noopener">
+                    {source.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </footer>
+      </div>
+
+      <aside class="article__aside" aria-label={ui.author.name}>
+        <div class="author-card">
+          <div class="author-card__head">
+            <div class="author-card__mark" aria-hidden="true">{initials(ui.author.name)}</div>
+            <div>
+              <p class="author-card__name">{ui.author.name}</p>
+              <p class="author-card__role">{typo(ui.author.role)}</p>
+            </div>
+          </div>
+          <p>{typo(ui.author.bio)}</p>
+          <a class="button button--primary" href={consultLink(ui)} rel="noopener">{ui.cta.consult}</a>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <Closing lang={lang} ui={ui} title={ui.site.tagline} text={safe(ui.site.description)} />
+</Base>
