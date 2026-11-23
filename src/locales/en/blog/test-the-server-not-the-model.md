@@ -58,7 +58,7 @@ This is checked too. No tool that writes something is marked as safe. Every tool
 
 A confirmation works once, and only for that action. The amount changed: refused. Pressed a second time: refused.
 
-In my project this was real. Two new tools with money were added. And nobody wrote the text about the consequences for them. A person would have seen a string of letters on the card instead of the words “this issues a real invoice”.
+In my project this really happened. Two new tools with money were added. But nobody had written the warning text for them. A person would have seen a string of letters on the card instead of the words “this issues a real invoice”.
 
 ## What it looks like in my project
 
@@ -70,4 +70,4 @@ The cleaning works both ways. Emails, phone numbers, links and passwords do not 
 
 They do not judge the AI itself. Whether it writes well. Whether it picks the right tool. That takes separate checks with a live AI. They are slow and cost money, so they run on a schedule, not on every change.
 
-My checks answer for something else. The agent can make a mistake. But its mistake runs into a program that refuses. Or into a person who reads the card.
+My checks are for something else. The agent can make a mistake. But its mistake runs into a program that refuses. Or into a person who reads the card.

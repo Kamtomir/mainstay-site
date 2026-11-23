@@ -34,7 +34,7 @@ I used to ask: “How do I check this feature?”
 
 Now I ask something else: “How do I make sure no change breaks what matters?”
 
-What matters is three things. Personal data. Money. Access.
+Three things matter. Personal data. Money. Access.
 
 ## What I put in place
 
@@ -58,7 +58,7 @@ I do not trust the words “it got better”. So I count. Here are the 30 days t
 | 97.4% | of code changes came with a change to the tests (150 of 154) |
 | 15&nbsp;minutes | is how long a check usually takes |
 
-The line that matters is the third. Fifteen times a run was red. All fifteen were in drafts. The main version did not go red once.
+The third line is the one that matters. Fifteen times a run was red. All fifteen were in drafts. The main version did not go red once.
 
 About the fourth line, honestly: a changed test is not yet a good test. I read this number together with the others.
 

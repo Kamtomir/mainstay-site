@@ -88,7 +88,7 @@ blog:
   heading: Blog
   intro: >-
     Cases from my project, where an AI agent writes the code. What broke, how
-    we caught it and what came of it.
+    it was caught and what came of it.
 
 notFound:
   title: Page not found
@@ -105,10 +105,10 @@ layers:
       example: every page checks that the person is signed in.
     folder: guards/
     reference: >-
-      {guardSuites} sets of checks. For example: every address of the platform
-      has a limit on requests; when something fails, personal data is shown to
+      {guardSuites} sets of checks. For example: every API route of the
+      platform has a request limit; when something fails, personal data is shown to
       no one; code for the browser has nothing that breaks older iPhones;
-      background jobs run on the cheap model.
+      background jobs run on a cheaper model.
   - name: A counter for old debt
     rule: >-
       Old problems are counted file by file. Fewer is fine, more is not. A new
@@ -116,8 +116,8 @@ layers:
     folder: guards/ratchet.ts
     reference: >-
       A counter of one-off checks of “which version of the product is this”.
-      Step by step they were replaced by one list of features that is switched
-      without a new release.
+      Step by step they were replaced by one list of features that can be
+      switched on without a new release.
   - name: The order of checks
     rule: >-
       The fastest and cheapest first, the slow ones after: whether to run at

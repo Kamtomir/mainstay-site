@@ -68,7 +68,7 @@ numbers:
       label: lines of code in {sourceFiles} files, tests not counted
       source: the project
     - value: "{decisionDocs}"
-      label: "documents with decisions: what we do and why"
+      label: "documents with decisions: what was done and why"
       source: the project
 
 recent:
@@ -91,10 +91,10 @@ recent:
 reproduce:
   title: How to check it again
   intro: >-
-    The code and the log of the checks are closed. But every number can be got
-    with a command, in a copy of the project with read access, at save
-    {commit}. Later changes shift the numbers. On request I run these commands
-    in front of you.
+    The code and the log of the checks are closed. But every number comes
+    from a command. It runs in a copy of the project with read access, at
+    save {commit}. Later changes shift the numbers. On request, I run these
+    commands while you watch.
   testCounts: "How many tests there are and how long they take, from the log of the run:"
   outputNote: >-
     Shown without the timestamps. For the database tests, “Duration” is the

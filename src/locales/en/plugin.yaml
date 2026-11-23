@@ -32,7 +32,7 @@ does:
   items:
     - "Asks what you need: the checks, the order they run in, the rules for the agent."
     - >-
-      Writes the first checks for your project. Every API address checks that
+      Writes the first checks for your project. Every API route checks that
       the person is signed in. Server keys do not get into the code for the
       browser. Neither does anything that breaks older iPhones.
     - >-
@@ -62,8 +62,8 @@ output:
     The check says three things: which rule is broken, in which file, and what
     to write instead.
   after: >-
-    Then there are two honest ways: fix the code, or write down why this file
-    is allowed. Weakening the check itself to get green is not one of them.
+    Then there are two honest options: fix the code, or write down why this
+    file is allowed. Weakening the check itself to get green is not one of them.
 
 needs:
   title: What it needs
@@ -122,18 +122,18 @@ faq:
         like any task of yours.
     - q: Which frameworks does it know?
       a: >-
-        For the check of API addresses: Next.js, SvelteKit, Express, Fastify
+        For the API route check: Next.js, SvelteKit, Express, Fastify
         and Hono. With others it first describes what it found and asks before
         it writes.
-    - q: A check complains about a file where this is intended. What do I do?
+    - q: A check flags a file where this is done on purpose. What do I do?
       a: >-
         Put the file into the exceptions and state the reason. Without a
         reason the exception is not accepted. And when it is no longer needed,
         the check says so itself.
     - q: Why is the project not on npm?
       a: >-
-        On purpose. These are files you copy and read in full. No updates from
-        someone else, and no dependence on me.
+        On purpose. These are files you copy and read in full. Nothing updates
+        without you, and you do not depend on me.
 
 closing:
   title: And the rules of your product?

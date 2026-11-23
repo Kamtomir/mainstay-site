@@ -4,6 +4,13 @@
 # own stories instead of general claims. A term is explained in plain words
 # where it first appears.
 #
+# The reader comes first: where a sentence can be about "you", "your team" or
+# the thing itself ("the check", "the report"), it is. "I" stays where it is a
+# fact about the author or his responsibility: the story, who checks the
+# findings, who answers for the report, the promises about code and the NDA.
+# Never "we" for the service: one person does the work. "We" only means "you
+# and I", as in "we talk for 20 minutes".
+#
 # {placeholders} come from src/data/case.ts (numbers from CASE.md) and
 # site.config.mjs (price, contact). Inline markup: `code`, **bold**,
 # [text](/path/ or https://...).
@@ -11,33 +18,36 @@
 meta:
   title: "Checks for code written by AI agents | Kamil Dashdamirov"
   description: >-
-    In five working days I set up checks in your project that catch an AI
-    agent's mistakes before your customers do: money, access, personal data.
+    Checks for your project that catch an AI agent's mistakes in money, access
+    and personal data before your customers do. Set up in five working days.
 
 hero:
   # The line break (\n) puts the second sentence on its own line.
   title: "AI writes the code.\nWho checks it?"
-  # Each step of the story has a short mark on the left: when it happened.
+  # Each step of the story has a short mark on the left: what this step is
+  # about. Not a time: readers took "8 months" and "today" for deadlines.
+  # The column is narrow (6.5rem), so a mark is one or two short words.
   story:
-    - when: 8 months
+    - when: My project
       text: >-
-        For eight months I built a product together with an AI agent. It wrote
-        the code, I set the tasks. Five or six changes went out every day. I
+        For eight months I built a product with an AI agent. It wrote the
+        code, and I set the tasks. Five or six changes went out every day. I
         could not read them all.
-    - when: one day
+    - when: The bug
       text: >-
-        One day a single line got into the code. The tests passed. And on
-        older iPhones **the page stopped opening**. I learned about it from
-        error reports.
-    - when: then
+        One day a single line got into the code. The tests passed. But on
+        older iPhones **the page stopped opening**. I found out from the error
+        reports.
+    - when: The lesson
       text: >-
-        That is when I understood a simple thing. Telling an agent to “be more
-        careful” does not work. You need **a check that catches such a mistake
-        by itself**, before people see it.
-    - when: today
+        Then I understood a simple thing. Asking an agent to “be more careful”
+        does not work. You need **a check that catches the mistake by itself**,
+        before people see it.
+    - when: Your project
       text: >-
-        Today I have {guardSuites} sets of such checks. I can set up the same
-        in your project. In five working days.
+        Today my project has {guardSuites} sets of such checks. Your project
+        can have its own. In five working days I find where a mistake would
+        cost you the most and put checks there.
   artifactCaption: >-
     This is what a caught mistake looks like. The check names the file and
     says what to write instead.
@@ -46,76 +56,79 @@ hero:
     run: Fix it and run again
     back: Bring the mistake back
     caption: >-
-      The mistake is fixed. The check is green, and the tests and the build
-      run next.
+      The mistake is fixed. The check is green. Next come the tests and the
+      build.
 
 approach:
-  title: What I do
-  lead: First I find the places where a mistake is expensive. Usually there are three.
+  title: What gets checked
+  lead: First, the places where a mistake is expensive. Usually there are three.
   # Three tiles: the place and an example of a check for it.
-  placeLabel: an example of a check
+  placeLabel: an example check
   places:
     - name: Money
-      rule: No invoice goes out without a person's confirmation.
+      rule: No invoice goes out unless a person confirms it.
     - name: Access
       rule: Every page first checks that the person is signed in.
     - name: Personal data
-      rule: When something breaks, other people's data is shown to no one.
+      rule: When something breaks, no one sees other people's data.
   paragraphs:
     - >-
-      For each place I set up a check. It is simple: it reads the code and
-      looks whether the rule is kept. The agent forgot, and the check goes
-      red. Your team sees it right away, not from a customer.
+      Each place gets its own check. It is simple: it reads the code and sees
+      whether the rule is kept. If the agent forgets the rule, the check goes
+      red. Your team sees it at once, not from a customer.
     - >-
       The check does not care who wrote the code: a person or an agent. It
       runs on every change. And it does not get tired.
     - >-
-      I work with an agent too, and I say so openly. It reads your code. I
-      check every one of its findings. And I answer for the report.
+      I work with an agent too, and I say so openly. The agent reads your
+      code. I check every finding it makes. And I am responsible for the
+      report.
 
 audience:
-  title: Who needs this
-  fitsTitle: Come to me if
+  title: Who this is for
+  # Both lists have one form: every item starts with "you".
+  fitsTitle: This is for you if
   fits:
     - >-
-      an AI agent writes most of your code, and you cannot read everything it
-      brings;
+      you let an AI agent write most of your code, and you cannot read
+      everything it brings;
     - >-
-      the product handles money, access rights or personal data, and a mistake
-      there is expensive;
+      you have money, access rights or personal data in your product, and a
+      mistake there is expensive;
     - >-
       you are the founder, the CTO or the developer who presses “merge”;
     - >-
-      the project is written in TypeScript and lives on GitHub. My ready-made
-      checks are built for them.
-  notTitle: Not for you if
+      you write in TypeScript and keep your code on GitHub. The ready-made
+      checks are built for both.
+  notTitle: This is not for you if
   notFits:
     - >-
-      you need someone to build features or fix the code for you. I find the
-      problems; what to change is your decision;
+      you need someone to build features or fix the code for you. The audit
+      finds the problems; what to change is up to you;
     - >-
-      you need tests that click through the site by themselves, load testing
-      or a penetration test. I do not do those;
+      you need tests that click through your site by themselves, load testing
+      or a penetration test. These are not part of the work;
     - >-
-      you use another language or another home for your code. Write anyway: in
-      20 minutes we will see whether the approach fits.
+      you use another language, or keep your code somewhere other than
+      GitHub. Write anyway: a 20-minute call will show whether the approach
+      fits.
 
 deliverables:
   title: What you get in five working days
-  intro: Four things. All of them stay with you.
+  intro: Four things, and they all stay with you.
   # tag: a short mark on the card, saying which file or folder it is.
   items:
     - tag: report
-      title: A list of dangerous places
+      title: A list of risky places
       text: >-
-        Where an agent can break money, access and personal data. For each
+        Where an agent can break payments, access or personal data. For each
         place: the file, the line and what is wrong.
     - tag: test/guards
       title: Checks that already work
       text: >-
         They run by themselves on every change. Fast ones first, slow ones
-        after. Old problems are not all fixed at once: we count them and set a
-        rule, “fewer is fine, more is not”.
+        after. Old problems do not have to be fixed at once. The check counts
+        them and sets a rule: “fewer is fine, more is not”.
     - tag: CLAUDE.md
       title: Rules for your agent
       text: >-
@@ -127,15 +140,15 @@ deliverables:
         What to add next, who is responsible, and which numbers show whether
         things got better.
   note: >-
-    I fix nothing and merge nothing without your yes. A red check is a
-    question for your team: fix it, or write down why it is allowed here.
+    Nothing goes into your code without your yes. A red check is a question
+    for your team: fix the code, or write down why it is allowed here.
 
 process:
   title: How it goes
   # Two parts: what is free and what belongs to the paid work.
   phases:
     - kind: free
-      label: First, free
+      label: First, the free part
       steps:
         - title: You install the free plugin
           text: >-
@@ -143,40 +156,41 @@ process:
             project and shows what they found. [How it works](/plugin/).
         - title: We talk for 20 minutes
           text: >-
-            You share your screen with the findings. I do not see your code
-            and do not ask for access. We decide whether you need the paid
-            work. If the plugin is enough, we stop there.
+            You share your screen with the findings. Your code stays with
+            you, and no access is needed. Then you decide whether you need the
+            paid work. If the plugin is enough, you stop there.
     - kind: paid
       label: "Then the paid work: five working days"
       steps:
         - title: We sign an agreement, you give access
           text: >-
             The agreement covers confidentiality and which AI reads your code.
-            I need access to one project, for a week. I work in GitHub's
-            cloud, next to your code. I do not copy it to my computer.
+            Access is needed to one project, for one week. The work happens in
+            GitHub's cloud, next to your code. I do not copy it to my computer.
         - title: The agent reads the code, I check the findings
           text: >-
-            We look where a mistake costs the most: payments, access, personal
-            data and what your own AI is allowed to do. Every finding is a
-            check that fails on your code. You can run it yourself.
+            The search starts where a mistake costs the most: payments,
+            access, personal data and what your own AI is allowed to do. Every
+            finding is a check that fails on your code. You can run it
+            yourself.
         - title: The checks come to you for approval
           text: >-
-            Not straight into the code, but as proposals. Your team reviews
-            and accepts them.
-        - title: I hand everything over
+            They do not go straight into the code. They come as proposed
+            changes. Your team reviews and accepts them.
+        - title: You get everything
           text: >-
-            The list of dangerous places, the rules for the agent and the
-            plan. You close my access, and the cloud environment is deleted
-            with it. The checks stay as ordinary files in your project. There
-            is no subscription.
+            The list of risky places, the rules for the agent and the plan.
+            You close my access, and the cloud environment is deleted with it.
+            The checks stay as ordinary files in your project. There is no
+            subscription.
 
 proof:
-  title: What it gave me
+  title: How it worked in my project
   intro: >-
-    I do not promise numbers for your team. Here are mine. Catch Club is a
-    platform for paid Telegram communities. I built it alone, with the Claude
-    Code agent, from {periodStart} to {periodEnd}. The agent wrote most of the
-    code.
+    Every project has its own numbers. Here are the ones I measured in mine.
+    Catch Club is a platform for paid Telegram communities. I built it alone,
+    with the Claude Code agent, from {periodStart} to {periodEnd}. The agent
+    wrote most of the code.
   # The three main numbers, shown large.
   big:
     - value: "{mergedPrs}"
@@ -218,9 +232,9 @@ proof:
       This is one person's experience. A large team needs the same system set
       up differently: every check needs an owner.
     - >-
-      I have no tests that click through the site by themselves. I check the
-      Telegram screens by hand, with a list.
-    - I do not yet count separately the mistakes that did reach people.
+      There are no tests that click through the site by themselves. The
+      Telegram screens are checked by hand, with a checklist.
+    - Mistakes that did reach people are not counted separately yet.
   more: >-
     Every number, where it comes from and how to check it again is on
     [the numbers page](/case/).
@@ -233,7 +247,7 @@ pricing:
   intro:
     price: "{priceIntro}"
     label: for each of the first {introClients} clients
-  hidden: I name the price after the free call, before the work starts.
+  hidden: You learn the price after the free call, before the work starts.
   # The receipt lists the four things from the block above and the agent's cost.
   receiptTitle: What the price includes
   included: included
@@ -242,53 +256,71 @@ pricing:
   notes:
     - The free 20-minute call comes first. It commits you to nothing.
     - >-
-      The price does not change along the way. If there are several projects,
-      we agree on the price before the start.
+      The price does not change along the way. For several projects, the
+      price is agreed before the work starts.
     - The plugin stays free.
 
 faq:
   title: Questions
   items:
+    - q: What exactly do you check, and what do you not check?
+      a: >-
+        The places where a mistake costs the most: money, access, personal
+        data and what your own AI is allowed to do. Building features and
+        fixing your code are not part of the work. Neither are tests that
+        click through the site, load testing or penetration tests.
+    - q: How do you decide which risks matter for our project?
+      a: >-
+        First I learn who your customers are and what your product does for
+        them. Then I look at its strong points and its bottleneck. From that
+        it is clear where a mistake would cost you the most. Usually it is
+        money, access or personal data.
+    - q: Why five working days?
+      a: >-
+        That is the time for one project. It covers the whole job: the
+        expensive places, the checks for them, the rules for the agent and the
+        plan. Access is needed for that one week, and then you close it. The
+        price does not change along the way.
     - q: "Who reads our code: you or an AI?"
       a: >-
-        An AI agent, Claude Code. I direct it, check every finding and answer
-        for the report. A finding is not the model's opinion. It is a check
-        that fails on your code. You can run it again and see for yourself.
+        An AI agent, Claude Code. I direct it, check every finding and am
+        responsible for the report. A finding is not the model's opinion. It
+        is a check that fails on your code. You can run it again and see for
+        yourself.
     - q: Will our code go to the company that makes the AI?
       a: >-
         Yes, to Anthropic: the agent is their Claude Code. It runs under my
         commercial account, not a personal subscription. On those terms your
-        code is not used to train models, and our agreement says so. If that
-        is not allowed for you, the agent runs under your account.
+        code is not used to train models, and our agreement says so. If your
+        rules do not allow that, the agent runs under your account.
         [What Anthropic does with the data](https://code.claude.com/docs/en/data-usage).
     - q: What access do you need?
       a: >-
         To one project, for a week: to read the code, see the check results
-        and propose changes. I do not need access to the live site or your
-        passwords. I work in GitHub's cloud, next to your code, and do not
-        copy it to my computer. You close the access, and the cloud
+        and propose changes. Access to the live site and your passwords is
+        not needed. I work in GitHub's cloud, next to your code, and do not
+        copy it to my computer. When you close the access, the cloud
         environment is deleted.
     - q: Can it be done with no access at all?
       a: >-
         Yes. Then your developer runs the agent on their own machine, under
-        your AI account. I lead over a call and check the findings on a shared
-        screen. It takes your developer's time.
+        your AI account. I guide the work on a call and check the findings on
+        a shared screen. This takes some of your developer's time.
     - q: Do you sign an NDA?
       a: >-
-        Yes, before I see any code. Confidentiality is in my agreement. If you
-        have your own NDA, send it. The first call does not need one: I do not
-        see your code.
+        Yes, before I see any code. My agreement already covers
+        confidentiality. If you have your own NDA, send it. The first call
+        does not need one: I do not see your code.
     - q: Will you change our code?
       a: >-
-        No. I add checks and rules for the agent, and only as proposals your
-        team accepts. If a check is red, that is a finding. Whether to fix it
-        or record an exception is your decision.
+        No. I add checks and rules for the agent, and only as proposed
+        changes. Your team decides whether to accept them. A red check is a
+        finding. You decide whether to fix the code or record an exception.
     - q: How is this better than an AI bot that reviews code?
       a: >-
         A bot gives an opinion. One today, another tomorrow. A check gives the
         same answer for the same code. And the rule is written down in your
-        project, where everyone can see it. The two do not get in each other's
-        way.
+        project, where everyone can see it. You can use both.
     - q: What if we do not use Claude Code?
       a: >-
         The checks do not care who wrote the code. They work with another
@@ -299,6 +331,13 @@ faq:
         No. A check catches the kind of mistake it was written for. Each one
         says honestly what it cannot see. But a mistake that already happened
         gets a check of its own. Next time the check catches it.
+    - q: What is the difference between the free plugin and the paid work?
+      a: >-
+        The plugin sets up general checks: for example, that every API route
+        checks sign-in. You run it yourself, in your own Claude Code. The paid
+        work is about the rules of your product: your money, your access,
+        your data. First they have to be found in your code. That is the five
+        days, with the report, the checks, the rules and the plan.
     - q: What if we only install the free plugin?
       a: >-
         It writes the first checks for your project, runs them and shows the
@@ -309,13 +348,13 @@ about:
   title: About me
   paragraphs:
     - >-
-      My name is {authorName}, I am an engineer. For eight months I built
+      My name is {authorName}. I am an engineer. For eight months I built
       [Catch Club]({productUrl}) alone. It is a platform for paid Telegram
       communities: an owner's dashboard, bots, mini apps, payments and AI
       agents. Most of the code was written by the Claude Code agent.
     - >-
       To keep it from falling apart, I put together a system of checks along
-      the way. Then I moved it into an open project,
+      the way. Later I turned it into an open project,
       [mainstay](https://github.com/Kamtomir/mainstay). It is free.
     - This service is the same system, set up for your project.
 
@@ -338,14 +377,14 @@ facts:
         Founders, CTOs and developers whose code is written by AI agents.
     - term: What the client gets
       value: >-
-        A list of dangerous places, working checks, rules for the agent and a
+        A list of risky places, working checks, rules for the agent and a
         90-day plan.
     - term: How long it takes
       value: Five working days.
     - term: How the work is done
       value: >-
         The code is read by an AI agent, Claude Code. {authorName} directs it,
-        checks every finding and answers for the report.
+        checks every finding and is responsible for the report.
     - term: Where the code stays
       value: >-
         In a GitHub cloud environment next to the client's project. The
@@ -376,5 +415,5 @@ facts:
 closing:
   title: Start with 20 minutes
   text: >-
-    Tell me what your project is and what the agent writes in it. On the call
+    Tell me about your project and what the agent writes in it. On the call,
     you show what the plugin found. Then you decide.

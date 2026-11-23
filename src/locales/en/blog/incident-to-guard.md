@@ -32,7 +32,7 @@ But stopping there means waiting for the next time. The same tool could do the s
 
 So in the same change I added a check. It looks through every file of the project. It finds an invisible character and fails. And it says in which file.
 
-## A rule of four steps
+## A four-step rule
 
 I have done it this way ever since.
 
